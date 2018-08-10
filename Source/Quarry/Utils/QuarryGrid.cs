@@ -74,7 +74,7 @@ namespace Quarry {
 
 
 		public void MarkForDraw() {
-			if (map == Find.VisibleMap) {
+			if (map == Find.CurrentMap) {
 				Drawer.MarkForDraw();
 			}
 		}

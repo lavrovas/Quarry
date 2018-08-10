@@ -13,9 +13,9 @@ namespace Quarry {
 			defaultDesc = Static.DescriptionReclaimSoil;
 			icon = Static.DesignationReclaimSoil;
 			useMouseIcon = true;
-			soundDragSustain = SoundDefOf.DesignateDragStandard;
-			soundDragChanged = SoundDefOf.DesignateDragStandardChanged;
-			soundSucceeded = SoundDefOf.DesignateSmoothFloor;
+			soundDragSustain = SoundDefOf.Designate_DragStandard;
+			soundDragChanged = SoundDefOf.Designate_DragStandard_Changed;
+			soundSucceeded = SoundDefOf.Designate_SmoothSurface;
 		}
 
 

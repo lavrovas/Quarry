@@ -18,7 +18,7 @@
 			<li>SmoothableStone</li>
 		</affordances>
 		<smoothedTerrain>QRY_ReclaimedSoil</smoothedTerrain>
-		<terrainFilthDef>FilthDirt</terrainFilthDef>
+		<generatedFilth>Filth_Dirt</generatedFilth>
 		<fertility>0</fertility>
 		<takeFootprints>false</takeFootprints>
 		<acceptFilth>true</acceptFilth>
@@ -37,7 +37,7 @@
 			<Beauty>-5</Beauty>
 			<Cleanliness>-2</Cleanliness>
 		</statBases>
-		<terrainFilthDef>FilthDirt</terrainFilthDef>
+		<generatedFilth>Filth_Dirt</generatedFilth>
 		<fertility>0</fertility>
 		<takeFootprints>false</takeFootprints>
 		<acceptFilth>true</acceptFilth>
@@ -60,7 +60,7 @@
 			<li>Heavy</li>
 			<li>GrowSoil</li>
 		</affordances>
-		<terrainFilthDef>FilthDirt</terrainFilthDef>
+		<generatedFilth>Filth_Dirt</generatedFilth>
 		<fertility>0.7</fertility>
 		<takeFootprints>True</takeFootprints>
 	</TerrainDef>

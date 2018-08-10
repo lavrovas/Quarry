@@ -38,7 +38,7 @@ namespace Quarry {
     }
 
 
-		public override bool TryMakePreToilReservations() {
+		public override bool TryMakePreToilReservations(bool errorOnFailed) {
 			return pawn.Reserve(job.GetTarget(TargetIndex.A), job);
 		}
 
@@ -143,14 +143,14 @@ namespace Quarry {
 					}
 
 					Thing haulableResult = ThingMaker.MakeThing(def);
-					if (!singleSpawn && def != ThingDefOf.Component) {
+					if (!singleSpawn && def != ThingDefOf.ComponentIndustrial) {
 						int sub = (int)(def.BaseMarketValue / 2f);
 						sub = Mathf.Clamp(sub, 0, 10);
 
 						stackCount += Mathf.Min(Rand.RangeInclusive(15 - sub, 40 - (sub * 2)), def.stackLimit - 1);
 					}
 
-					if (def == ThingDefOf.Component) {
+					if (def == ThingDefOf.ComponentIndustrial) {
 						stackCount += Random.Range(0, 1);
 					}
 
@@ -164,10 +164,10 @@ namespace Quarry {
 					// Adjust quality for items that use it
 					if (haulableResult.TryGetComp<CompQuality>() != null) {
 						usesQuality = true;
-						haulableResult.TryGetComp<CompQuality>().SetQuality(QualityUtility.RandomTraderItemQuality(), ArtGenerationContext.Outsider);
+						haulableResult.TryGetComp<CompQuality>().SetQuality(QualityUtility.GenerateQualityTraderItem(), ArtGenerationContext.Outsider);
 					}
 					// Adjust hitpoints, this was just mined from under the ground after all
-					if (def.useHitPoints && !def.thingCategories.Contains(QuarryDefOf.StoneChunks) && def != ThingDefOf.Component) {
+					if (def.useHitPoints && !def.thingCategories.Contains(QuarryDefOf.StoneChunks) && def != ThingDefOf.ComponentIndustrial) {
 						float minHpThresh = 0.25f;
 						if (usesQuality) {
 							minHpThresh = Mathf.Clamp((float)haulableResult.TryGetComp<CompQuality>().Quality / 10f, 0.1f, 0.7f);
@@ -191,7 +191,7 @@ namespace Quarry {
 					// If the sinkhole event was triggered, damage the pawn and end this job
 					// Even if the sinkhole doesn't incapacitate the pawn, they will probably want to seek medical attention
 					if (eventTriggered) {
-						Messages.Message("QRY_MessageSinkhole".Translate(pawn.NameStringShort), pawn, MessageTypeDefOf.NegativeEvent);
+						Messages.Message("QRY_MessageSinkhole".Translate(pawn.Name), pawn, MessageTypeDefOf.NegativeEvent);
 						DamageInfo dInfo = new DamageInfo(DamageDefOf.Crush, 9, category: DamageInfo.SourceCategory.Collapse);
 						dInfo.SetBodyRegion(BodyPartHeight.Bottom, BodyPartDepth.Inside);
 						pawn.TakeDamage(dInfo);
@@ -200,7 +200,7 @@ namespace Quarry {
 					}
 					else {
 						// Prevent the colonists from trying to haul rubble, which just makes them visit the platform
-						if (def == ThingDefOf.RockRubble) {
+						if (def == ThingDefOf.Filth_RubbleRock) {
 							EndJobWith(JobCondition.Succeeded);
 						}
 						else {
@@ -218,9 +218,18 @@ namespace Quarry {
 									job.SetTarget(TargetIndex.C, c);
 								}
 								else {
-									StoragePriority currentPriority = HaulAIUtility.StoragePriorityAtFor(haulableResult.Position, haulableResult);
-									if (StoreUtility.TryFindBestBetterStoreCellFor(haulableResult, pawn, Map, currentPriority, pawn.Faction, out c)) {
-										job.SetTarget(TargetIndex.B, haulableResult);
+									StoragePriority currentPriority = StoreUtility.CurrentStoragePriorityOf(haulableResult);
+                                    Job result;
+                                    if (!StoreUtility.TryFindBestBetterStorageFor(haulableResult, pawn, Map, currentPriority, pawn.Faction, out c, out IHaulDestination haulDestination, true))
+                                    {
+                                        JobFailReason.Is("NoEmptyPlaceLower".Translate(), null);
+                                    }
+                                    else if (haulDestination is ISlotGroupParent)
+                                    {
+                                        result = HaulAIUtility.HaulToCellStorageJob(pawn, haulableResult, c, false);
+                                    }
+                                    else { 
+                                        job.SetTarget(TargetIndex.B, haulableResult);
 										job.count = haulableResult.stackCount;
 										job.SetTarget(TargetIndex.C, c);
 									}

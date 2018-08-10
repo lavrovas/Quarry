@@ -35,10 +35,11 @@ namespace Quarry {
     }
 
 
-		public override void DrawGhost(ThingDef def, IntVec3 center, Rot4 rot) {
+		public override void DrawGhost(ThingDef def, IntVec3 center, Rot4 rot, Color color) {
 			if (!DebugSettings.godMode) {
-				// Draw the placement areas
-				Find.VisibleMap.GetComponent<QuarryGrid>().MarkForDraw();
+                // Draw the placement areas
+                Find.CurrentMap.GetComponent<QuarryGrid>().MarkForDraw();
+				//Find.VisibleMap.GetComponent<QuarryGrid>().MarkForDraw();
 				GenDraw.DrawFieldEdges(GenAdj.CellsOccupiedBy(center, rot, def.Size).ToList());
 			}
 		}

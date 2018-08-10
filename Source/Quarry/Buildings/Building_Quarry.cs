@@ -68,7 +68,12 @@ namespace Quarry {
 			}
 		}
 
-    public float QuarryPercent {
+        public bool AssignedAnything(Pawn pawn)
+        {
+            return false;
+        }
+
+        public float QuarryPercent {
       get {
         if (QuarrySettings.QuarryMaxHealth == int.MaxValue) {
           return 100f;
@@ -313,10 +318,10 @@ namespace Quarry {
 			}
 			// Check for dirt filth
 			if (filthAmount <= 40) {
-				GenSpawn.Spawn(ThingMaker.MakeThing(ThingDefOf.FilthDirt), c, Map);
+				GenSpawn.Spawn(ThingMaker.MakeThing(ThingDefOf.Filth_Dirt), c, Map);
 			}
 			else {
-				GenSpawn.Spawn(ThingMaker.MakeThing(ThingDefOf.RockRubble), c, Map);
+				GenSpawn.Spawn(ThingMaker.MakeThing(ThingDefOf.Filth_RubbleRock), c, Map);
 				// Check for chunks
 				if (filthAmount > 80) {
 					GenSpawn.Spawn(ThingMaker.MakeThing(ChunksUnder.RandomElement()), c, Map);
@@ -356,7 +361,7 @@ namespace Quarry {
 				}
 				// The rock didn't break into a usable size, spawn rubble
 				mote = MoteType.Failure;
-				return ThingDefOf.RockRubble;
+				return ThingDefOf.Filth_RubbleRock;
 			}
 
 			// Try to give junk before resources. This simulates only mining chunks or useless rubble
@@ -366,7 +371,7 @@ namespace Quarry {
 				}
 				else {
 					mote = MoteType.Failure;
-					return ThingDefOf.RockRubble;
+					return ThingDefOf.Filth_RubbleRock;
 				}
 			}
 
@@ -377,7 +382,7 @@ namespace Quarry {
 			}
 			// The quarry was most likely toggled off while a pawn was still working. Give junk
 			else {
-				return ThingDefOf.RockRubble;
+				return ThingDefOf.Filth_RubbleRock;
 			}
 		}
 
@@ -481,7 +486,7 @@ namespace Quarry {
 			}
 			return stringBuilder.ToString().TrimEndNewlines();
 		}
-		#endregion MethodGroup_Inspecting
-		#endregion MethodGroup_Root
-	}
+        #endregion MethodGroup_Inspecting
+        #endregion MethodGroup_Root
+    }
 }

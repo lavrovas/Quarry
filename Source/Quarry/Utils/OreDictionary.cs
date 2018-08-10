@@ -53,7 +53,7 @@ namespace Quarry {
 			num += num / 2;
 
 			// Manually add components
-			oreDictionary.Add(new ThingCountExposable(ThingDefOf.Component, num));
+			oreDictionary.Add(new ThingCountExposable(ThingDefOf.ComponentIndustrial, num));
 
 			// Assign this dictionary for the mod to use
 			QuarrySettings.oreDictionary = oreDictionary;
