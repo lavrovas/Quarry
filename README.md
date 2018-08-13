@@ -6,3 +6,5 @@ This mod adds a quarry for collecting rocks and resources in flat terrain.
 
 
 Forked from the awesome https://github.com/cuproPanda/Quarry and updated for Rimworld B19.
+
+Steam Workshop: https://steamcommunity.com/sharedfiles/filedetails/?id=1473363081
