@@ -9,7 +9,7 @@ namespace Quarry {
 		private CellBoolDrawer drawer;
 
 		public Color Color => Color.green;
-		public bool GetCellBool(int index) => boolGrid[index];
+		public bool GetCellBool(int index) => !map.fogGrid.IsFogged(index) && boolGrid[index];
 		public bool GetCellBool(IntVec3 c) => boolGrid[c];
 		public Color GetCellExtraColor(int index) => Color.white;
 
@@ -61,6 +61,12 @@ namespace Quarry {
 			Drawer.SetDirty();
 		}
 
+		
+		public void Notify_FogGridUpdate()
+		{
+			Drawer.SetDirty();
+		}
+		
 
 		public override void MapComponentUpdate() {
 			base.MapComponentUpdate();

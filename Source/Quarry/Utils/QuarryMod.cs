@@ -1,26 +1,30 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-
+using System.Reflection;
+using Harmony;
 using UnityEngine;
 using Verse;
 
 namespace Quarry {
+	
+	public sealed class QuarryMod : Mod {
 
-  public sealed class QuarryMod : Mod {
-		
 		private Vector2 scrollPosition = Vector2.zero;
 		private float scrollViewHeight = 0f;
 
 
 		public QuarryMod(ModContentPack mcp) : base(mcp) {
-      LongEventHandler.ExecuteWhenFinished(GetSettings);
-      LongEventHandler.ExecuteWhenFinished(PushDatabase);
+			LongEventHandler.ExecuteWhenFinished(GetSettings);
+			LongEventHandler.ExecuteWhenFinished(PushDatabase);
 			LongEventHandler.ExecuteWhenFinished(BuildDictionary);
+			
+			HarmonyInstance harmony = HarmonyInstance.Create("net.cuproPanda.rimworld.mod.quarry");
+			harmony.PatchAll(Assembly.GetExecutingAssembly());
 		}
 
 
-    public void GetSettings() {
+		public void GetSettings() {
 			GetSettings<QuarrySettings>();
 		}
 
@@ -31,8 +35,8 @@ namespace Quarry {
 
 
 		private void PushDatabase() {
-      QuarrySettings.database = DefDatabase<ThingDef>.AllDefsListForReading;
-    }
+			QuarrySettings.database = DefDatabase<ThingDef>.AllDefsListForReading;
+		}
 
 
 		private void BuildDictionary() {
@@ -41,92 +45,90 @@ namespace Quarry {
 			}
 		}
 
+		public override string SettingsCategory() {
+			return Static.Quarry;
+		}
 
-    public override string SettingsCategory() {
-      return Static.Quarry;
-    }
-
-
-    public override void DoSettingsWindowContents(Rect rect) {
+		public override void DoSettingsWindowContents(Rect rect) {
 			Listing_Standard list = new Listing_Standard() {
 				ColumnWidth = rect.width
 			};
 
 			list.Begin(rect);
-      list.Gap(10);
-      {
-        Rect fullRect = list.GetRect(Text.LineHeight);
-        Rect leftRect = fullRect.LeftHalf().Rounded();
-        Rect rightRect = fullRect.RightHalf().Rounded();
+			list.Gap(10);
+			{
+				Rect fullRect = list.GetRect(Text.LineHeight);
+				Rect leftRect = fullRect.LeftHalf().Rounded();
+				Rect rightRect = fullRect.RightHalf().Rounded();
 
-        if (QuarrySettings.quarryMaxHealth <= 10000) {
-          Widgets.Label(leftRect, "QRY_DepletionLabel".Translate(QuarrySettings.quarryMaxHealth.ToString("N0")));
-        }
-        else {
-          Widgets.Label(leftRect, "QRY_DepletionLabel".Translate("Infinite"));
-        }
+				if (QuarrySettings.quarryMaxHealth <= 10000) {
+					Widgets.Label(leftRect, "QRY_DepletionLabel".Translate(QuarrySettings.quarryMaxHealth.ToString("N0")));
+				}
+				else {
+					Widgets.Label(leftRect, "QRY_DepletionLabel".Translate("Infinite"));
+				}
 
-        //Increment timer value by -100 (button).
-        if (Widgets.ButtonText(new Rect(rightRect.xMin, rightRect.y, rightRect.height, rightRect.height), "-", true, false, true)) {
-          if (QuarrySettings.quarryMaxHealth >= 200) {
-            QuarrySettings.quarryMaxHealth -= 100;
-          }
-        }
+				//Increment timer value by -100 (button).
+				if (Widgets.ButtonText(new Rect(rightRect.xMin, rightRect.y, rightRect.height, rightRect.height), "-", true, false, true)) {
+					if (QuarrySettings.quarryMaxHealth >= 200) {
+						QuarrySettings.quarryMaxHealth -= 100;
+					}
+				}
 
-        QuarrySettings.quarryMaxHealth = Widgets.HorizontalSlider(
-          new Rect(rightRect.xMin + rightRect.height + 10f, rightRect.y, rightRect.width - ((rightRect.height * 2) + 20f),rightRect.height),
-          QuarrySettings.quarryMaxHealth, 100f, 10100f, true).RoundToAsInt(100);
+				QuarrySettings.quarryMaxHealth = Widgets.HorizontalSlider(
+					new Rect(rightRect.xMin + rightRect.height + 10f, rightRect.y, rightRect.width - ((rightRect.height * 2) + 20f),rightRect.height),
+					QuarrySettings.quarryMaxHealth, 100f, 10100f, true
+				).RoundToAsInt(100);
 
-        //Increment timer value by +100 (button).
-        if (Widgets.ButtonText(new Rect(rightRect.xMax - rightRect.height, rightRect.y, rightRect.height, rightRect.height), "+", true, false, true)) {
-          if (QuarrySettings.quarryMaxHealth < 10100) {
-            QuarrySettings.quarryMaxHealth += 100;
-          }
-        }
+				//Increment timer value by +100 (button).
+				if (Widgets.ButtonText(new Rect(rightRect.xMax - rightRect.height, rightRect.y, rightRect.height, rightRect.height), "+", true, false, true)) {
+					if (QuarrySettings.quarryMaxHealth < 10100) {
+						QuarrySettings.quarryMaxHealth += 100;
+					}
+				}
 
-        list.Gap(25);
+				list.Gap(25);
+				{
+					Rect letterRect = list.GetRect(Text.LineHeight).LeftHalf().Rounded();
 
-        {
-          Rect letterRect = list.GetRect(Text.LineHeight).LeftHalf().Rounded();
+					Widgets.CheckboxLabeled(letterRect, Static.LetterSent, ref QuarrySettings.letterSent);
+					if (Mouse.IsOver(letterRect)) {
+						Widgets.DrawHighlight(letterRect);
+					}
+					TooltipHandler.TipRegion(letterRect, Static.ToolTipLetter);
+				}
 
-          Widgets.CheckboxLabeled(letterRect, Static.LetterSent, ref QuarrySettings.letterSent);
-          if (Mouse.IsOver(letterRect)) {
-            Widgets.DrawHighlight(letterRect);
-          }
-          TooltipHandler.TipRegion(letterRect, Static.ToolTipLetter);
-        }
+				list.Gap(25);
+				{
+					Rect junkRect = list.GetRect(Text.LineHeight).LeftHalf().Rounded();
+					Rect junkSliderOffset = junkRect.RightHalf().Rounded().RightPartPixels(200);
 
-        list.Gap(25);
+					Widgets.Label(junkRect, "QRY_SettingsJunkChance".Translate(QuarrySettings.junkChance));
+					QuarrySettings.junkChance = Widgets.HorizontalSlider(
+						junkSliderOffset,
+						QuarrySettings.junkChance, 0f, 100f, true
+					).RoundToAsInt(5);
+					if (Mouse.IsOver(junkRect)) {
+						Widgets.DrawHighlight(junkRect);
+					}
+					TooltipHandler.TipRegion(junkRect, Static.ToolTipJunkChance);
 
-        {
-          Rect junkRect = list.GetRect(Text.LineHeight).LeftHalf().Rounded();
-          Rect junkSliderOffset = junkRect.RightHalf().Rounded().RightPartPixels(200);
+				}
 
-          Widgets.Label(junkRect, "QRY_SettingsJunkChance".Translate(QuarrySettings.junkChance));
-          QuarrySettings.junkChance = Widgets.HorizontalSlider(
-          junkSliderOffset,
-          QuarrySettings.junkChance, 0f, 100f, true).RoundToAsInt(5);
-          if (Mouse.IsOver(junkRect)) {
-            Widgets.DrawHighlight(junkRect);
-          }
-          TooltipHandler.TipRegion(junkRect, Static.ToolTipJunkChance);
+				list.Gap(25);
+				{
+					Rect chunkRect = list.GetRect(Text.LineHeight).LeftHalf().Rounded();
+					Rect chunkSliderOffset = chunkRect.RightHalf().Rounded().RightPartPixels(200);
 
-        }
-
-        list.Gap(25);
-
-        {
-          Rect chunkRect = list.GetRect(Text.LineHeight).LeftHalf().Rounded();
-          Rect chunkSliderOffset = chunkRect.RightHalf().Rounded().RightPartPixels(200);
-
-          Widgets.Label(chunkRect, "QRY_SettingsChunkChance".Translate(QuarrySettings.chunkChance));
-          QuarrySettings.chunkChance = Widgets.HorizontalSlider(
-          chunkSliderOffset,
-          QuarrySettings.chunkChance, 0f, 100f, true).RoundToAsInt(5);
-          if (Mouse.IsOver(chunkRect)) {
-            Widgets.DrawHighlight(chunkRect);
-          }
-          TooltipHandler.TipRegion(chunkRect, Static.ToolTipChunkChance);
+					Widgets.Label(chunkRect, "QRY_SettingsChunkChance".Translate(QuarrySettings.chunkChance));
+					QuarrySettings.chunkChance = Widgets.HorizontalSlider(
+						chunkSliderOffset,
+						QuarrySettings.chunkChance, 0f, 100f, true
+					).RoundToAsInt(5);
+					if (Mouse.IsOver(chunkRect)) {
+						Widgets.DrawHighlight(chunkRect);
+					}
+					TooltipHandler.TipRegion(chunkRect, Static.ToolTipChunkChance);
 				}
 
 				list.Gap(15);
@@ -138,8 +140,8 @@ namespace Quarry {
 					Text.Font = GameFont.Small;
 					Text.Anchor = TextAnchor.UpperLeft;
 				}
+				
 				list.Gap(1);
-
 				{
 					Rect buttonsRect = list.GetRect(Text.LineHeight).Rounded();
 					Rect addRect = buttonsRect.LeftThird();
@@ -249,8 +251,28 @@ namespace Quarry {
 					GUI.EndGroup();
 				}
 
-        list.End();
-      }
-    }
-  }
+				list.End();
+			}
+		}
+	}
+
+	[HarmonyPatch(typeof(FogGrid))]
+	[HarmonyPatch("Notify_FogBlockerRemoved")]
+	static class FogGrid_Notify_FogBlockerRemoved_Patch
+	{
+		static void Postfix()
+		{
+			Find.CurrentMap.GetComponent<QuarryGrid>().Notify_FogGridUpdate();
+		}
+	}
+
+	[HarmonyPatch(typeof(FogGrid))]
+	[HarmonyPatch("Notify_PawnEnteringDoor")]
+	static class FogGrid_Notify_PawnEnteringDoor_Patch
+	{
+		static void Postfix()
+		{
+			Find.CurrentMap.GetComponent<QuarryGrid>().Notify_FogGridUpdate();
+		}
+	}
 }
