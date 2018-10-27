@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
-using Harmony;
+
 using UnityEngine;
 using Verse;
 
@@ -18,9 +17,6 @@ namespace Quarry {
 			LongEventHandler.ExecuteWhenFinished(GetSettings);
 			LongEventHandler.ExecuteWhenFinished(PushDatabase);
 			LongEventHandler.ExecuteWhenFinished(BuildDictionary);
-			
-			HarmonyInstance harmony = HarmonyInstance.Create("net.cuproPanda.rimworld.mod.quarry");
-			harmony.PatchAll(Assembly.GetExecutingAssembly());
 		}
 
 
@@ -253,26 +249,6 @@ namespace Quarry {
 
 				list.End();
 			}
-		}
-	}
-
-	[HarmonyPatch(typeof(FogGrid))]
-	[HarmonyPatch("Notify_FogBlockerRemoved")]
-	static class FogGrid_Notify_FogBlockerRemoved_Patch
-	{
-		static void Postfix()
-		{
-			Find.CurrentMap?.GetComponent<QuarryGrid>()?.Notify_FogGridUpdate();
-		}
-	}
-
-	[HarmonyPatch(typeof(FogGrid))]
-	[HarmonyPatch("Notify_PawnEnteringDoor")]
-	static class FogGrid_Notify_PawnEnteringDoor_Patch
-	{
-		static void Postfix()
-		{
-			Find.CurrentMap?.GetComponent<QuarryGrid>()?.Notify_FogGridUpdate();
 		}
 	}
 }

@@ -8,3 +8,6 @@ This mod adds a quarry for collecting rocks and resources in flat terrain.
 Forked from the awesome https://github.com/cuproPanda/Quarry and updated for Rimworld 1.0.
 
 Steam Workshop: https://steamcommunity.com/sharedfiles/filedetails/?id=1543177113
+
+# Powered by Harmony
+![Powered by Harmony](https://raw.githubusercontent.com/pardeike/Harmony/master/HarmonyLogo.png)
