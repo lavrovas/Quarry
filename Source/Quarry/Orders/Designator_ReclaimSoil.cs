@@ -27,7 +27,8 @@ namespace Quarry {
 			else if (c.Fogged(Map)) {
 				result = false;
 			}
-			else if (Map.designationManager.DesignationAt(c, QuarryDefOf.QRY_Designator_ReclaimSoil) != null) {
+			else if (Map.designationManager.DesignationAt(c, QuarryDefOf.QRY_Designator_ReclaimSoil) != null || 
+			         Map.designationManager.DesignationAt(c, DesignationDefOf.SmoothFloor) != null) {
 				result = false;
 			}
 			else if (c.InNoBuildEdgeArea(Map)) {
