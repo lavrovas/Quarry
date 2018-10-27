@@ -262,7 +262,7 @@ namespace Quarry {
 	{
 		static void Postfix()
 		{
-			Find.CurrentMap.GetComponent<QuarryGrid>().Notify_FogGridUpdate();
+			Find.CurrentMap?.GetComponent<QuarryGrid>()?.Notify_FogGridUpdate();
 		}
 	}
 
@@ -272,7 +272,7 @@ namespace Quarry {
 	{
 		static void Postfix()
 		{
-			Find.CurrentMap.GetComponent<QuarryGrid>().Notify_FogGridUpdate();
+			Find.CurrentMap?.GetComponent<QuarryGrid>()?.Notify_FogGridUpdate();
 		}
 	}
 }
