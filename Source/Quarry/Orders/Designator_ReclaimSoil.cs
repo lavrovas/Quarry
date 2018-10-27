@@ -1,4 +1,5 @@
-﻿using RimWorld;
+﻿using System.Collections.Generic;
+using RimWorld;
 using Verse;
 
 namespace Quarry {
@@ -60,6 +61,11 @@ namespace Quarry {
 
 		public override void SelectedUpdate() {
 			GenUI.RenderMouseoverBracket();
+		}
+		
+		public override void RenderHighlight(List<IntVec3> dragCells)
+		{
+			DesignatorUtility.RenderHighlightOverSelectableCells(this, dragCells);
 		}
 	}
 }
