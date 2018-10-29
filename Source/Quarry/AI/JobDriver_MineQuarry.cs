@@ -224,7 +224,8 @@ namespace Quarry
                     // Even if the sinkhole doesn't incapacitate the pawn, they will probably want to seek medical attention
                     if (eventTriggered)
                     {
-                        Messages.Message("QRY_MessageSinkhole".Translate(pawn.Name), pawn, MessageTypeDefOf.NegativeEvent);
+                        NamedArgument pawnName = new NamedArgument(0, pawn.Name.ToStringShort);
+                        Messages.Message("QRY_MessageSinkhole".Translate(pawnName), pawn, MessageTypeDefOf.NegativeEvent);
                         DamageInfo dInfo = new DamageInfo(DamageDefOf.Crush, 9, category: DamageInfo.SourceCategory.Collapse);
                         dInfo.SetBodyRegion(BodyPartHeight.Bottom, BodyPartDepth.Inside);
                         pawn.TakeDamage(dInfo);
