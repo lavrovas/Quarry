@@ -4,6 +4,7 @@ using Verse;
 
 namespace Quarry
 {
+    [StaticConstructorOnStartup]
     static class HarmonyPatches
     {
         static HarmonyPatches()
