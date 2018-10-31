@@ -233,7 +233,7 @@ namespace Quarry
                 foreach (IntVec3 c in rect)
                 {
                     // What type of terrain are we over?
-                    string rockType = c.GetTerrain(Map).label.Split(' ').Last().CapitalizeFirst();
+                    string rockType = c.GetTerrain(Map).defName.Split('_').First();
                     // If this is a valid rock type, add it to the list
                     if (QuarryUtility.IsValidQuarryRock(rockType))
                     {
