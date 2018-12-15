@@ -1,4 +1,5 @@
-﻿using RimWorld;
+﻿using System.Collections.Generic;
+using RimWorld;
 using Verse;
 
 namespace Quarry {
@@ -27,7 +28,8 @@ namespace Quarry {
 			else if (c.Fogged(Map)) {
 				result = false;
 			}
-			else if (Map.designationManager.DesignationAt(c, QuarryDefOf.QRY_Designator_ReclaimSoil) != null) {
+			else if (Map.designationManager.DesignationAt(c, QuarryDefOf.QRY_Designator_ReclaimSoil) != null || 
+			         Map.designationManager.DesignationAt(c, DesignationDefOf.SmoothFloor) != null) {
 				result = false;
 			}
 			else if (c.InNoBuildEdgeArea(Map)) {
@@ -59,6 +61,11 @@ namespace Quarry {
 
 		public override void SelectedUpdate() {
 			GenUI.RenderMouseoverBracket();
+		}
+		
+		public override void RenderHighlight(List<IntVec3> dragCells)
+		{
+			DesignatorUtility.RenderHighlightOverSelectableCells(this, dragCells);
 		}
 	}
 }
