@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+
+  <QRY_CellsMined.label>накопано m³ в карьере</QRY_CellsMined.label>
+  <QRY_CellsMined.description>Количество кубометров накопанной мной в карьере породы.</QRY_CellsMined.description>
+
+</LanguageData>

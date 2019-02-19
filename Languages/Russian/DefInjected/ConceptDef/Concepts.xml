@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+
+  <QRY_ReclaimingSoil.label>Рекультивация почвы</QRY_ReclaimingSoil.label>
+  <QRY_ReclaimingSoil.helpText>После выработки карьера вы можете с помощью инструмента «Рекультивация почвы» назначить поселенцам задачу на заполнение выемки почвой для её дальнейшего использования.</QRY_ReclaimingSoil.helpText>
+
+</LanguageData>

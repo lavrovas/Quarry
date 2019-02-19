@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+
+  <QuarryMining.label>работа в карьере</QuarryMining.label>
+  <QuarryMining.description>Раскопки и бурение в карьере.</QuarryMining.description>
+  <QuarryMining.labelShort>карьер</QuarryMining.labelShort>
+  <QuarryMining.pawnLabel>шахтер</QuarryMining.pawnLabel>
+  <QuarryMining.gerundLabel>копает</QuarryMining.gerundLabel>
+  <QuarryMining.verb>добывает в карьере</QuarryMining.verb>
+
+</LanguageData>

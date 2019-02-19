@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+
+  <QRY_Quarry.label>большой карьер</QRY_Quarry.label>
+  <QRY_Quarry.description>Большая яма для поиска давно закопанных ископаемых.</QRY_Quarry.description>
+  <Blueprint_QRY_Quarry.label>большой карьер (проект)</Blueprint_QRY_Quarry.label>
+  <Frame_QRY_Quarry.label>большой карьер (строится)</Frame_QRY_Quarry.label>
+  <Frame_QRY_Quarry.description>Большая яма для поиска давно закопанных ископаемых.</Frame_QRY_Quarry.description>
+
+  <QRY_MiniQuarry.label>карьер</QRY_MiniQuarry.label>
+  <QRY_MiniQuarry.description>Небольшая яма для поиска давно закопанных ископаемых.</QRY_MiniQuarry.description>
+  <Blueprint_QRY_MiniQuarry.label>карьер (проект)</Blueprint_QRY_MiniQuarry.label>
+  <Frame_QRY_MiniQuarry.label>карьер (строится)</Frame_QRY_MiniQuarry.label>
+  <Frame_QRY_MiniQuarry.description>Небольшая яма для поиска давно закопанных ископаемых.</Frame_QRY_MiniQuarry.description>
+
+  <QRY_Platform.label>склад карьера</QRY_Platform.label>
+  <QRY_Platform.description>Склад, на который рабочие переносят добытов в карьере. Должен быть размещен неподалёку, предпочтительно у лестниц. У одного карьера может быть не более двух складов.</QRY_Platform.description>
+  <Blueprint_QRY_Platform.label>склад карьера (проект)</Blueprint_QRY_Platform.label>
+  <Frame_QRY_Platform.label>склад карьера (строится)</Frame_QRY_Platform.label>
+  <Frame_QRY_Platform.description>Склад, на который рабочие переносят добытов в карьере. Должен быть размещен неподалёку, предпочтительно у лестниц. У одного карьера может быть не более двух складов.</Frame_QRY_Platform.description>
+
+</LanguageData>
