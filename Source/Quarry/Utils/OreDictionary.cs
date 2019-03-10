@@ -24,7 +24,7 @@ namespace Quarry {
 
         private static Predicate<ThingDef> validOre = (
             (ThingDef def) => def.mineable &&
-                              def != QuarryDefOf.ComponentIndustrial &&
+                              def != QuarryDefOf.MineableComponentsIndustrial &&
                               def.building != null &&
                               def.building.isResourceRock &&
                               def.building.mineableThing != null
