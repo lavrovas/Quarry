@@ -1,11 +1,10 @@
 ﻿using Verse;
 using RimWorld;
 
-namespace Quarry
-{
+namespace Quarry {
+
     [DefOf]
-    public static class QuarryDefOf
-    {
+    public static class QuarryDefOf {
 
         public static ThingDef QRY_Quarry;
         public static ThingDef QRY_MiniQuarry;
@@ -29,6 +28,7 @@ namespace Quarry
         public static RecordDef QRY_CellsMined;
 
         public static DesignationDef QRY_Designator_ReclaimSoil;
-    }
-}
 
+    }
+
+}

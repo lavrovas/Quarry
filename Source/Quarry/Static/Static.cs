@@ -1,25 +1,41 @@
 ﻿using System;
-
 using UnityEngine;
 using Verse;
 
-namespace Quarry
-{
-    [StaticConstructorOnStartup]
-    public static class Static
-    {
+namespace Quarry {
 
-        public static Texture2D DesignationQuarryResources = ContentFinder<Texture2D>.Get("Cupro/UI/Designators/QuarryResources", false);
-        public static Texture2D DesignationQuarryBlocks = ContentFinder<Texture2D>.Get("Cupro/UI/Designators/QuarryBlocks", false);
-        public static Texture2D DesignationReclaimSoil = ContentFinder<Texture2D>.Get("Cupro/UI/Designators/ReclaimSoil", false);
+    [StaticConstructorOnStartup]
+    public static class Static {
+
+        public static Texture2D DesignationQuarryResources =
+            ContentFinder<Texture2D>.Get("Cupro/UI/Designators/QuarryResources", false);
+
+        public static Texture2D DesignationQuarryBlocks =
+            ContentFinder<Texture2D>.Get("Cupro/UI/Designators/QuarryBlocks", false);
+
+        public static Texture2D DesignationReclaimSoil =
+            ContentFinder<Texture2D>.Get("Cupro/UI/Designators/ReclaimSoil", false);
+
         public static Texture2D DesignationHaul = ContentFinder<Texture2D>.Get("UI/Designators/Haul");
 
-        public static Graphic Platform_Bricks = GraphicDatabase.Get<Graphic_Single>("Cupro/Object/Platform/Platform_Bricks", ShaderDatabase.DefaultShader, new Vector2(3, 3), Color.white);
-        public static Graphic Platform_GraniticStone = GraphicDatabase.Get<Graphic_Single>("Cupro/Object/Platform/Platform_GraniticStone", ShaderDatabase.DefaultShader, new Vector2(3, 3), Color.white);
-        public static Graphic Platform_Planks = GraphicDatabase.Get<Graphic_Single>("Cupro/Object/Platform/Platform_Planks", ShaderDatabase.DefaultShader, new Vector2(3, 3), Color.white);
-        public static Graphic Platform_RockyStone = GraphicDatabase.Get<Graphic_Single>("Cupro/Object/Platform/Platform_RockyStone", ShaderDatabase.DefaultShader, new Vector2(3, 3), Color.white);
-        public static Graphic Platform_Smooth = GraphicDatabase.Get<Graphic_Single>("Cupro/Object/Platform/Platform_Smooth", ShaderDatabase.DefaultShader, new Vector2(3, 3), Color.white);
-        public static Graphic Platform_SmoothStone = GraphicDatabase.Get<Graphic_Single>("Cupro/Object/Platform/Platform_SmoothStone", ShaderDatabase.DefaultShader, new Vector2(3, 3), Color.white);
+        public static Graphic Platform_Bricks = GraphicDatabase.Get<Graphic_Single>(
+            "Cupro/Object/Platform/Platform_Bricks", ShaderDatabase.DefaultShader, new Vector2(3, 3), Color.white);
+
+        public static Graphic Platform_GraniticStone = GraphicDatabase.Get<Graphic_Single>(
+            "Cupro/Object/Platform/Platform_GraniticStone", ShaderDatabase.DefaultShader, new Vector2(3, 3),
+            Color.white);
+
+        public static Graphic Platform_Planks = GraphicDatabase.Get<Graphic_Single>(
+            "Cupro/Object/Platform/Platform_Planks", ShaderDatabase.DefaultShader, new Vector2(3, 3), Color.white);
+
+        public static Graphic Platform_RockyStone = GraphicDatabase.Get<Graphic_Single>(
+            "Cupro/Object/Platform/Platform_RockyStone", ShaderDatabase.DefaultShader, new Vector2(3, 3), Color.white);
+
+        public static Graphic Platform_Smooth = GraphicDatabase.Get<Graphic_Single>(
+            "Cupro/Object/Platform/Platform_Smooth", ShaderDatabase.DefaultShader, new Vector2(3, 3), Color.white);
+
+        public static Graphic Platform_SmoothStone = GraphicDatabase.Get<Graphic_Single>(
+            "Cupro/Object/Platform/Platform_SmoothStone", ShaderDatabase.DefaultShader, new Vector2(3, 3), Color.white);
 
         public static IntVec3 LadderOffset_Big1 = new IntVec3(-3, 0, 5);
         public static IntVec3 LadderOffset_Big2 = new IntVec3(-3, 0, 6);
@@ -66,5 +82,7 @@ namespace Quarry
         public static string CommandBedSetOwnerLabel = "CommandBedSetOwnerLabel".Translate();
         public static string CommandSetOwnerDesc = "QRY_CommandSetOwnerDesc".Translate();
         public static string ReportGizmoLackingResearch = "QRY_ReportGizmoLackingResearch".Translate();
+
     }
+
 }
