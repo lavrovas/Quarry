@@ -20,6 +20,7 @@ namespace Quarry {
             return $"({count}x {thingDef?.defName ?? "null"})";
         }
 
+        // TODO: consider if its nessesary
         public int CompareTo(ThingCountExposable other) {
             return count.CompareTo(other.count);
         }
