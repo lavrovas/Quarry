@@ -9,6 +9,10 @@ namespace Quarry {
 
         public ThingDef thingDef;
         public int count;
+        
+        // ReSharper disable once UnusedMember.Global
+        public ThingCountExposable() {
+        }
 
         public ThingCountExposable(ThingDef thingDef, int count) {
             this.thingDef = thingDef;
