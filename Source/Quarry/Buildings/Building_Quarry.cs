@@ -360,15 +360,15 @@ namespace Quarry {
             }
         }
 
-
-        public ThingDef GiveResources(ResourceRequest req, out MoteType mote, out bool singleSpawn,
-            out bool eventTriggered) {
+        public ThingDef GiveResources(
+            ResourceRequest resourceRequested, out MoteType mote, out bool singleSpawn, out bool eventTriggered
+        ) {
             // Increment the jobs completed
             jobsCompleted++;
 
-            eventTriggered = false;
             mote = MoteType.None;
             singleSpawn = true;
+            eventTriggered = false;
 
             // Decrease the amount this quarry can be mined, eventually depleting it
             if (QuarrySettings.QuarryMaxHealth != int.MaxValue) {
@@ -378,45 +378,52 @@ namespace Quarry {
             // Determine if the mining job resulted in a sinkhole event, based on game difficulty
             if (jobsCompleted % SinkholeFrequency == 0 && Rand.Chance(Find.Storyteller.difficulty.difficulty / 50f)) {
                 eventTriggered = true;
+
                 // The sinkhole damages the quarry a little
                 QuarryMined(Rand.RangeInclusive(1, 3));
             }
 
             // Cache values since this process is convoluted and the values need to remain the same
             bool junkMined = Rand.Chance(QuarrySettings.junkChance / 100f);
+            bool chunkMined = Rand.Chance(QuarrySettings.chunkChance / 100f); 
 
-            // Check for blocks first to prevent spawning chunks (these would just be cut into blocks)
-            if (req == ResourceRequest.Blocks) {
-                if (!junkMined) {
-                    singleSpawn = false;
-                    return BlocksUnder.RandomElement();
-                }
+            switch (resourceRequested) {
+                // Check for blocks first to prevent spawning chunks (these would just be cut into blocks)
 
                 // The rock didn't break into a usable size, spawn rubble
-                mote = MoteType.Failure;
-                return ThingDefOf.Filth_RubbleRock;
-            }
+                case ResourceRequest.Blocks when junkMined:
+                    mote = MoteType.Failure;
+                    return ThingDefOf.Filth_RubbleRock;
 
-            // Try to give junk before resources. This simulates only mining chunks or useless rubble
-            if (junkMined) {
-                if (Rand.Chance(QuarrySettings.chunkChance / 100f)) {
-                    return ChunksUnder.RandomElement();
-                }
-                else {
+                // Spawn block
+                case ResourceRequest.Blocks:
+                    singleSpawn = false;
+                    return BlocksUnder.RandomElement();
+
+                // Try to give junk before resources. This simulates only mining chunks or useless rubble
+                case ResourceRequest.Resources when junkMined && !chunkMined: {
                     mote = MoteType.Failure;
                     return ThingDefOf.Filth_RubbleRock;
                 }
+
+                // Spawn chunk
+                case ResourceRequest.Resources when junkMined: {
+                    return ChunksUnder.RandomElement();
+                }
+
+                // Spawn resource
+                case ResourceRequest.Resources:
+                    singleSpawn = false;
+                    return OreDictionary.TakeOne();
+
+                // The quarry was most likely toggled off while a pawn was still working. Give junk
+                case ResourceRequest.None:
+                    return ThingDefOf.Filth_RubbleRock;
+                
+                default:
+                    return ThingDefOf.Filth_RubbleRock;
             }
 
-            // Try to give resources
-            if (req == ResourceRequest.Resources) {
-                singleSpawn = false;
-                return OreDictionary.TakeOne();
-            }
-            // The quarry was most likely toggled off while a pawn was still working. Give junk
-            else {
-                return ThingDefOf.Filth_RubbleRock;
-            }
         }
 
 
