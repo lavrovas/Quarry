@@ -20,7 +20,7 @@ namespace Quarry {
             get {
                 if (quarryBuilding == null) {
                     quarryBuilding =
-                        job.GetTarget(TargetIndex.A).Cell.GetThingList(Map).Find(q => q is Building_Quarry) as
+                        job.GetTarget(CellInd).Cell.GetThingList(Map).Find(q => q is Building_Quarry) as
                             Building_Quarry;
                 }
 
@@ -42,7 +42,7 @@ namespace Quarry {
 
 
         public override bool TryMakePreToilReservations(bool errorOnFailed) {
-            return pawn.Reserve(job.GetTarget(TargetIndex.A), job);
+            return pawn.Reserve(job.GetTarget(CellInd), job);
         }
 
 
@@ -60,21 +60,21 @@ namespace Quarry {
             yield return Collect();
 
             // Reserve the resource
-            yield return Toils_Reserve.Reserve(TargetIndex.B);
+            yield return Toils_Reserve.Reserve(HaulableInd);
 
             // Reserve the storage cell
-            yield return Toils_Reserve.Reserve(TargetIndex.C);
+            yield return Toils_Reserve.Reserve(StorageCellInd);
 
             // Go to the resource
-            yield return Toils_Goto.GotoThing(TargetIndex.B, PathEndMode.ClosestTouch);
+            yield return Toils_Goto.GotoThing(HaulableInd, PathEndMode.ClosestTouch);
 
             // Pick up the resource
-            yield return Toils_Haul.StartCarryThing(TargetIndex.B);
+            yield return Toils_Haul.StartCarryThing(HaulableInd);
 
             // Carry the resource to the storage cell, then place it down
-            Toil carry = Toils_Haul.CarryHauledThingToCell(TargetIndex.C);
+            Toil carry = Toils_Haul.CarryHauledThingToCell(StorageCellInd);
             yield return carry;
-            yield return Toils_Haul.PlaceHauledThingInCell(TargetIndex.C, carry, true);
+            yield return Toils_Haul.PlaceHauledThingInCell(StorageCellInd, carry, true);
         }
 
 
@@ -116,7 +116,7 @@ namespace Quarry {
                 defaultDuration = (int) Mathf.Clamp(3000 / pawn.GetStatValue(StatDefOf.MiningSpeed, true), 500, 10000),
                 defaultCompleteMode = ToilCompleteMode.Delay,
                 handlingFacing = true
-            }.WithProgressBarToilDelay(TargetIndex.B, false, -0.5f);
+            }.WithProgressBarToilDelay(HaulableInd, false, -0.5f);
         }
 
         private Toil Collect() {
@@ -228,9 +228,9 @@ namespace Quarry {
                                 if (!def.thingCategories.Contains(QuarryDefOf.StoneChunks) &&
                                     Quarry.HasConnectedPlatform && Quarry.TryFindBestPlatformCell(haulableResult, pawn,
                                         Map, pawn.Faction, out IntVec3 c)) {
-                                    job.SetTarget(TargetIndex.B, haulableResult);
+                                    job.SetTarget(HaulableInd, haulableResult);
                                     job.count = haulableResult.stackCount;
-                                    job.SetTarget(TargetIndex.C, c);
+                                    job.SetTarget(StorageCellInd, c);
                                 }
                                 else {
                                     StoragePriority currentPriority =
@@ -245,9 +245,9 @@ namespace Quarry {
                                         result = HaulAIUtility.HaulToCellStorageJob(pawn, haulableResult, c, false);
                                     }
                                     else {
-                                        job.SetTarget(TargetIndex.B, haulableResult);
+                                        job.SetTarget(HaulableInd, haulableResult);
                                         job.count = haulableResult.stackCount;
-                                        job.SetTarget(TargetIndex.C, c);
+                                        job.SetTarget(StorageCellInd, c);
                                     }
                                 }
                             }
