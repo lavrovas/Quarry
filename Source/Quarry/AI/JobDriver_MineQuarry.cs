@@ -12,6 +12,8 @@ namespace Quarry {
     // ReSharper disable once UnusedMember.Global
     public class JobDriver_MineQuarry : JobDriver {
 
+        // ReSharper disable once InconsistentNaming
+        private const float MinMiningSpeedFactorForNPCs = 0.5f;
         private const int BaseTicksBetweenPickHits = 120;
 
         private const TargetIndex CellInd = TargetIndex.A;
@@ -66,15 +68,15 @@ namespace Quarry {
             // Carry the resource to the storage cell, then place it down
             Toil carry = Toils_Haul.CarryHauledThingToCell(StorageCellInd);
             yield return carry;
+
             yield return Toils_Haul.PlaceHauledThingInCell(StorageCellInd, carry, true);
         }
 
         private void ResetTicksToPickHit() {
             float miningSpeed = pawn.GetStatValue(StatDefOf.MiningSpeed);
 
-            // TODO: remove magic number
-            if (pawn.Faction != Faction.OfPlayer && miningSpeed < 0.5f) {
-                miningSpeed = 0.5f;
+            if (pawn.Faction != Faction.OfPlayer && miningSpeed < MinMiningSpeedFactorForNPCs) {
+                miningSpeed = MinMiningSpeedFactorForNPCs;
             }
 
             _ticksToPickHit = Mathf.RoundToInt(BaseTicksBetweenPickHits / miningSpeed);
@@ -84,18 +86,12 @@ namespace Quarry {
             void MineAction() {
                 pawn.rotationTracker.Face(Quarry.Position.ToVector3Shifted());
 
-                // TODO: remove magic number
-                if (_ticksToPickHit < -100) {
-                    ResetTicksToPickHit();
-                }
+                _ticksToPickHit--;
+                if (_ticksToPickHit > 0)
+                    return;
 
                 // TODO: remove magic number
                 pawn.skills?.Learn(SkillDefOf.Mining, xp: 0.11f, direct: false);
-
-                _ticksToPickHit--;
-
-                // TODO: remove magic number
-                if (_ticksToPickHit > 0) return;
 
                 if (_effecter == null) {
                     _effecter = EffecterDefOf.Mine.Spawn();
