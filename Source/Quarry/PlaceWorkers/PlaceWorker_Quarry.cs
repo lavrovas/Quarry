@@ -3,44 +3,42 @@ using System.Linq;
 using UnityEngine;
 using Verse;
 
+// ReSharper disable once CheckNamespace
 namespace Quarry {
 
+    // ReSharper disable once UnusedMember.Global
     public class PlaceWorker_Quarry : PlaceWorker {
 
-        List<IntVec3> occupiedCellsTemp = new List<IntVec3>();
-
-
-        public override AcceptanceReport AllowsPlacing(BuildableDef checkingDef, IntVec3 loc, Rot4 rot, Map map,
-            Thing thingToIgnore = null) {
+        public override AcceptanceReport AllowsPlacing(
+            BuildableDef building, IntVec3 location, Rot4 rotation, Map map, Thing thingToIgnore = null
+        ) {
             // God Mode allows placing the quarry without the grid restriction
-            if (!DebugSettings.godMode) {
-                int occCells = 0;
-                int rockCells = 0;
-                foreach (IntVec3 c in GenAdj.CellsOccupiedBy(loc, rot, checkingDef.Size)) {
-                    occCells++;
+            if (DebugSettings.godMode)
+                return true;
 
-                    // Make sure the quarry is placeable here
-                    if (map.GetComponent<QuarryGrid>().GetCellBool(c)) {
-                        rockCells++;
-                    }
-                }
+            QuarryGrid quarryGrid = map.GetComponent<QuarryGrid>();
+            List<IntVec3> cellsUnderBuilding = GenAdj.CellsOccupiedBy(location, rotation, building.Size).ToList();
 
-                // Require at least 60% rocky terrain
-                if ((float) (occCells - rockCells) / occCells > 0.4f) {
-                    return Static.ReportNotEnoughStone;
-                }
+            int occupied = cellsUnderBuilding.Count;
+            int rocky = cellsUnderBuilding.Count(cell => quarryGrid.GetCellBool(cell));
+
+            // Require at least 60% rocky terrain
+            if (rocky < 0.6 * occupied) {
+                return Static.ReportNotEnoughStone;
             }
 
             return true;
         }
 
 
-        public override void DrawGhost(ThingDef def, IntVec3 center, Rot4 rot, Color color) {
-            if (!DebugSettings.godMode) {
-                // Draw the placement areas
-                Find.CurrentMap.GetComponent<QuarryGrid>().MarkForDraw();
-                GenDraw.DrawFieldEdges(GenAdj.CellsOccupiedBy(center, rot, def.Size).ToList());
-            }
+        public override void DrawGhost(ThingDef building, IntVec3 center, Rot4 rotation, Color color) {
+            // God Mode allows placing the quarry without the need of grid
+            if (DebugSettings.godMode)
+                return;
+
+            // Draw the placement areas
+            Find.CurrentMap.GetComponent<QuarryGrid>().MarkForDraw();
+            GenDraw.DrawFieldEdges(GenAdj.CellsOccupiedBy(center, rotation, building.Size).ToList());
         }
 
     }
