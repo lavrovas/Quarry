@@ -274,6 +274,12 @@ namespace Quarry {
                 defaultCompleteMode = ToilCompleteMode.Instant
             };
         }
+        
+        public override void ExposeData()
+        {
+            base.ExposeData();
+            Scribe_Values.Look<int>(ref _ticksToPickHit, "ticksToPickHit", 0, false);
+        }
 
     }
 
