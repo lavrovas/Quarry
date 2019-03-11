@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using RimWorld;
 using Verse;
@@ -19,9 +20,9 @@ namespace Quarry {
         protected Building_Quarry Quarry {
             get {
                 if (quarryBuilding == null) {
-                    quarryBuilding =
-                        job.GetTarget(CellInd).Cell.GetThingList(Map).Find(q => q is Building_Quarry) as
-                            Building_Quarry;
+                    quarryBuilding = job
+                        .GetTarget(CellInd).Cell.GetThingList(Map)
+                        .Find(q => q is Building_Quarry) as Building_Quarry;
                 }
 
                 return quarryBuilding;
@@ -40,15 +41,13 @@ namespace Quarry {
             }
         }
 
-
         public override bool TryMakePreToilReservations(bool errorOnFailed) {
             return pawn.Reserve(job.GetTarget(CellInd), job);
         }
 
-
         protected override IEnumerable<Toil> MakeNewToils() {
             // Set up fail conditions
-            this.FailOn(delegate { return Quarry == null || Quarry.IsForbidden(pawn) || Quarry.Depleted; });
+            this.FailOn(() => Quarry == null || Quarry.IsForbidden(pawn) || Quarry.Depleted);
 
             // Go to the quarry
             yield return Toils_Goto.Goto(CellInd, PathEndMode.OnCell);
@@ -77,32 +76,35 @@ namespace Quarry {
             yield return Toils_Haul.PlaceHauledThingInCell(StorageCellInd, carry, true);
         }
 
-
         private void ResetTicksToPickHit() {
-            float statValue = pawn.GetStatValue(StatDefOf.MiningSpeed, true);
-            if (statValue < 0.5f && pawn.Faction != Faction.OfPlayer) {
-                statValue = 0.5f;
+            float miningSpeed = pawn.GetStatValue(StatDefOf.MiningSpeed);
+
+            // TODO: remove magic number
+            if (pawn.Faction != Faction.OfPlayer && miningSpeed < 0.5f) {
+                miningSpeed = 0.5f;
             }
 
-            ticksToPickHit = Mathf.RoundToInt((120f / statValue));
+            // TODO: remove magic number
+            ticksToPickHit = Mathf.RoundToInt(BaseTicksBetweenPickHits / miningSpeed);
         }
-
 
         private Toil Mine() {
             return new Toil() {
                 tickAction = delegate {
+                    
                     pawn.rotationTracker.Face(Quarry.Position.ToVector3Shifted());
 
+                    // TODO: remove magic number
                     if (ticksToPickHit < -100) {
                         ResetTicksToPickHit();
                     }
 
-                    if (pawn.skills != null) {
-                        pawn.skills.Learn(SkillDefOf.Mining, 0.11f, false);
-                    }
+                    // TODO: remove magic number
+                    pawn.skills?.Learn(SkillDefOf.Mining, 0.11f, false);
 
                     ticksToPickHit--;
 
+                    // TODO: remove magic number
                     if (ticksToPickHit <= 0) {
                         if (effecter == null) {
                             effecter = EffecterDefOf.Mine.Spawn();
@@ -122,79 +124,90 @@ namespace Quarry {
         private Toil Collect() {
             return new Toil() {
                 initAction = delegate {
-                    // Increment the record for how many cells this pawn has mined since this counts as mining
-                    // TODO: B19 - change to quarry m3
-                    pawn.records.Increment(RecordDefOf.CellsMined);
-
-                    // Start with None to act as a fallback. Rubble will be returned with this parameter
-                    ResourceRequest req = ResourceRequest.None;
+                    // Increment the record for how many cells this pawn has mined at quarry
+                    // TODO: Check nothing broken
+                    pawn.records.Increment(QuarryDefOf.QRY_CellsMined);
 
                     // Use the mineModeToggle to determine the request
-                    req = (Quarry.mineModeToggle ? ResourceRequest.Resources : ResourceRequest.Blocks);
-
-                    MoteType mote = MoteType.None;
-                    int stackCount = 1;
+                    ResourceRequest requestedResources = Quarry.mineModeToggle
+                        ? ResourceRequest.Resources
+                        : ResourceRequest.Blocks;
 
                     // Get the resource from the quarry
-                    ThingDef def = Quarry.GiveResources(req, out mote, out bool singleSpawn, out bool eventTriggered);
+                    ThingDef givenResourceDefinition = Quarry.GiveResources(
+                        requestedResources, out MoteType mote, out bool singleSpawn, out bool eventTriggered
+                    );
+                    
                     // If something went wrong, bail out
-                    if (def == null || def.thingClass == null) {
-                        Log.Warning("Quarry:: Tried to quarry mineable ore, but the ore given was null.");
+                    if (givenResourceDefinition?.thingClass == null) {
+                        // This shouldn't happen at all, but if it does let's add a little reward
+                        // instead of just giving rubble
+                        givenResourceDefinition = ThingDefOf.ChunkSlagSteel;
                         mote = MoteType.None;
                         singleSpawn = true;
-                        // This shouldn't happen at all, but if it does let's add a little reward instead of just giving rubble
-                        def = ThingDefOf.ChunkSlagSteel;
+                        
+                        Log.Warning("Quarry:: Tried to quarry mineable ore, but the ore given was null.");
                     }
 
-                    Thing haulableResult = ThingMaker.MakeThing(def);
-                    if (!singleSpawn && def != ThingDefOf.ComponentIndustrial) {
-                        int sub = (int) (def.BaseMarketValue / 2f);
+                    Thing givenResource = ThingMaker.MakeThing(givenResourceDefinition);
+                    int stackCount;
+
+                    if (singleSpawn) {
+                        stackCount = 1;
+                    }
+                    else if (givenResourceDefinition == ThingDefOf.ComponentIndustrial) {
+                        stackCount = Rand.Range(1, 2);
+                    }
+                    else {
+                        // TODO: Check if BaseMarketValue could be negative, maybe replace with
+                        // int sub = (int) Math.Min(givenResourceDefinition.BaseMarketValue / 2f, 10f);
+                        int sub = (int) (givenResourceDefinition.BaseMarketValue / 2f);
                         sub = Mathf.Clamp(sub, 0, 10);
 
-                        stackCount += Mathf.Min(Rand.RangeInclusive(15 - sub, 40 - (sub * 2)), def.stackLimit - 1);
+                        stackCount = Math.Min(
+                            Rand.RangeInclusive(15 - sub, 40 - 2 * sub), givenResourceDefinition.stackLimit
+                        );
                     }
 
-                    if (def == ThingDefOf.ComponentIndustrial) {
-                        stackCount += Random.Range(0, 1);
-                    }
-
-                    haulableResult.stackCount = stackCount;
+                    givenResource.stackCount = stackCount;
 
                     if (stackCount >= 30) {
                         mote = MoteType.LargeVein;
                     }
 
-                    bool usesQuality = false;
                     // Adjust quality for items that use it
-                    if (haulableResult.TryGetComp<CompQuality>() != null) {
+                    bool usesQuality = false;
+                    CompQuality qualityProperty = givenResource.TryGetComp<CompQuality>();
+                    if (qualityProperty != null) {
                         usesQuality = true;
-                        haulableResult.TryGetComp<CompQuality>().SetQuality(QualityUtility.GenerateQualityTraderItem(),
-                            ArtGenerationContext.Outsider);
+                        qualityProperty.SetQuality(
+                            QualityUtility.GenerateQualityTraderItem(), ArtGenerationContext.Outsider
+                        );
                     }
 
                     // Adjust hitpoints, this was just mined from under the ground after all
-                    if (def.useHitPoints && !def.thingCategories.Contains(QuarryDefOf.StoneChunks) &&
-                        def != ThingDefOf.ComponentIndustrial) {
+                    if (givenResourceDefinition.useHitPoints && !givenResourceDefinition.thingCategories.Contains(QuarryDefOf.StoneChunks) &&
+                        givenResourceDefinition != ThingDefOf.ComponentIndustrial) {
                         float minHpThresh = 0.25f;
                         if (usesQuality) {
-                            minHpThresh = Mathf.Clamp((float) haulableResult.TryGetComp<CompQuality>().Quality / 10f,
+                            minHpThresh = Mathf.Clamp((float) givenResource.TryGetComp<CompQuality>().Quality / 10f,
                                 0.1f, 0.7f);
                         }
 
-                        int hp = Mathf.RoundToInt(Rand.Range(minHpThresh, 1f) * haulableResult.MaxHitPoints);
+                        int hp = Mathf.RoundToInt(Rand.Range(minHpThresh, 1f) * givenResource.MaxHitPoints);
                         hp = Mathf.Max(1, hp);
-                        haulableResult.HitPoints = hp;
+                        givenResource.HitPoints = hp;
                     }
 
                     // Place the resource near the pawn
-                    GenPlace.TryPlaceThing(haulableResult, pawn.Position, Map, ThingPlaceMode.Near);
+                    GenPlace.TryPlaceThing(givenResource, pawn.Position, Map, ThingPlaceMode.Near);
 
                     // If the resource had a mote, throw it
                     if (mote == MoteType.LargeVein) {
-                        MoteMaker.ThrowText(haulableResult.DrawPos, Map, Static.TextMote_LargeVein, Color.green, 3f);
+                        MoteMaker.ThrowText(givenResource.DrawPos, Map, Static.TextMote_LargeVein, Color.green, 3f);
                     }
                     else if (mote == MoteType.Failure) {
-                        MoteMaker.ThrowText(haulableResult.DrawPos, Map, Static.TextMote_MiningFailed, Color.red, 3f);
+                        MoteMaker.ThrowText(givenResource.DrawPos, Map, Static.TextMote_MiningFailed, Color.red, 3f);
                     }
 
                     // If the sinkhole event was triggered, damage the pawn and end this job
@@ -212,41 +225,41 @@ namespace Quarry {
                     }
                     else {
                         // Prevent the colonists from trying to haul rubble, which just makes them visit the platform
-                        if (def == ThingDefOf.Filth_RubbleRock) {
+                        if (givenResourceDefinition == ThingDefOf.Filth_RubbleRock) {
                             EndJobWith(JobCondition.Succeeded);
                         }
                         else {
                             // If this is a chunk or slag, mark it as haulable if allowed to
-                            if (def.designateHaulable && Quarry.autoHaul) {
-                                Map.designationManager.AddDesignation(new Designation(haulableResult,
+                            if (givenResourceDefinition.designateHaulable && Quarry.autoHaul) {
+                                Map.designationManager.AddDesignation(new Designation(givenResource,
                                     DesignationDefOf.Haul));
                             }
 
                             // Try to find a suitable storage spot for the resource, removing it from the quarry
                             // If there are no platforms with free space, or if the resource is a chunk, try to haul it to a storage area
                             if (Quarry.autoHaul) {
-                                if (!def.thingCategories.Contains(QuarryDefOf.StoneChunks) &&
-                                    Quarry.HasConnectedPlatform && Quarry.TryFindBestPlatformCell(haulableResult, pawn,
+                                if (!givenResourceDefinition.thingCategories.Contains(QuarryDefOf.StoneChunks) &&
+                                    Quarry.HasConnectedPlatform && Quarry.TryFindBestPlatformCell(givenResource, pawn,
                                         Map, pawn.Faction, out IntVec3 c)) {
-                                    job.SetTarget(HaulableInd, haulableResult);
-                                    job.count = haulableResult.stackCount;
+                                    job.SetTarget(HaulableInd, givenResource);
+                                    job.count = givenResource.stackCount;
                                     job.SetTarget(StorageCellInd, c);
                                 }
                                 else {
                                     StoragePriority currentPriority =
-                                        StoreUtility.CurrentStoragePriorityOf(haulableResult);
+                                        StoreUtility.CurrentStoragePriorityOf(givenResource);
                                     Job result;
-                                    if (!StoreUtility.TryFindBestBetterStorageFor(haulableResult, pawn, Map,
+                                    if (!StoreUtility.TryFindBestBetterStorageFor(givenResource, pawn, Map,
                                         currentPriority, pawn.Faction, out c, out IHaulDestination haulDestination,
                                         true)) {
                                         JobFailReason.Is("NoEmptyPlaceLower".Translate(), null);
                                     }
                                     else if (haulDestination is ISlotGroupParent) {
-                                        result = HaulAIUtility.HaulToCellStorageJob(pawn, haulableResult, c, false);
+                                        result = HaulAIUtility.HaulToCellStorageJob(pawn, givenResource, c, false);
                                     }
                                     else {
-                                        job.SetTarget(HaulableInd, haulableResult);
-                                        job.count = haulableResult.stackCount;
+                                        job.SetTarget(HaulableInd, givenResource);
+                                        job.count = givenResource.stackCount;
                                         job.SetTarget(StorageCellInd, c);
                                     }
                                 }
@@ -262,6 +275,8 @@ namespace Quarry {
             };
         }
 
+        // TODO: looks like job progress is not saving - no ExposeData()
+        
     }
 
 }
