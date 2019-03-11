@@ -1,10 +1,11 @@
-﻿using RimWorld;
+﻿using System;
+using RimWorld;
 using Verse;
 
 // ReSharper disable once CheckNamespace
 namespace Quarry {
 
-    public sealed class ThingCountExposable : IExposable {
+    public sealed class ThingCountExposable : IExposable, IComparable<ThingCountExposable> {
 
         public ThingDef thingDef;
         public int count;
@@ -14,15 +15,13 @@ namespace Quarry {
             this.count = count;
         }
 
+        // TODO: consider if its nessesary
         public override string ToString() {
             return $"({count}x {thingDef?.defName ?? "null"})";
         }
 
-        // TODO: consider if its nessesary
-        public override int GetHashCode() {
-            // TODO: needs rework
-            // ReSharper disable once NonReadonlyMemberInGetHashCode
-            return thingDef.shortHash + count << 16;
+        public int CompareTo(ThingCountExposable other) {
+            return count.CompareTo(other.count);
         }
 
         // TODO: not sure how this works

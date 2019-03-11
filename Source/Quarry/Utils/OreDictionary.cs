@@ -124,12 +124,7 @@ namespace Quarry {
             List<ThingCountExposable> list = new List<ThingCountExposable>(weights);
 
             // Sorts the Weights List for randomization later
-            list.Sort(
-                delegate(ThingCountExposable firstPair,
-                    ThingCountExposable nextPair) {
-                    return firstPair.count.CompareTo(nextPair.count);
-                }
-            );
+            list.Sort();
 
             return list;
         }
