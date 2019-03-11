@@ -62,7 +62,7 @@ namespace Quarry {
 
         public static int ValueForMineableOre(ThingDef def) {
             if (!validOre(def)) {
-                Log.Error($"{Static.Quarry}:: Unable to process def {def.LabelCap} as a mineable resource rock.");
+                Log.Error($"Quarry:: Unable to process def {def.LabelCap} as a mineable resource rock.");
                 return 0;
             }
 
