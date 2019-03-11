@@ -143,7 +143,8 @@ namespace Quarry {
                 }
 
                 bool givenResourceIsComponent = givenResourceType == ThingDefOf.ComponentIndustrial;
-                bool givenResourceIsChunk = givenResourceType.thingCategories.Contains(QuarryDefOf.StoneChunks);
+                // TODO: rework - filth does not nave categories
+                bool givenResourceIsChunk = givenResourceType.thingCategories?.Contains(QuarryDefOf.StoneChunks) == true;
 
                 int stackCount;
 
