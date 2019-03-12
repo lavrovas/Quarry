@@ -1,10 +1,12 @@
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine;
-using RimWorld;
-using Verse;
 using System.Text;
+using RimWorld;
+using RimWorld.Planet;
+using UnityEngine;
+using Verse;
 
+// ReSharper disable once CheckNamespace
 namespace Quarry {
 
     public enum ResourceRequest {
@@ -26,57 +28,33 @@ namespace Quarry {
     [StaticConstructorOnStartup]
     public class Building_Quarry : Building, IAssignableBuilding {
 
-        #region Fields
-
-        public bool autoHaul = true;
-        public bool mineModeToggle = true;
+        public bool AutoHaul = true;
+        public bool MineModeToggle = true;
 
         private float quarryPercent = 1f;
-        private int jobsCompleted = 0;
-        private bool firstSpawn = false;
+        private int jobsCompleted;
+        private bool firstSpawn;
         private CompAffectedByFacilities facilityComp;
         private List<string> rockTypesUnder = new List<string>();
         private List<ThingDef> blocksUnder = new List<ThingDef>();
         private List<ThingDef> chunksUnder = new List<ThingDef>();
         private List<Pawn> owners = new List<Pawn>();
 
-        #endregion Fields
-
-        #region Public Properties
-
         public virtual int WallThickness => 2;
         public bool Unowned => owners.Count <= 0;
         public bool Depleted => QuarryPercent <= 0;
 
-        public IEnumerable<Pawn> AssigningCandidates {
-            get {
-                if (!Spawned) {
-                    return Enumerable.Empty<Pawn>();
-                }
+        public IEnumerable<Pawn> AssigningCandidates => Spawned ? Map.mapPawns.FreeColonists : Enumerable.Empty<Pawn>();
 
-                return Map.mapPawns.FreeColonists;
-            }
-        }
+        public IEnumerable<Pawn> AssignedPawns => owners;
 
-        public IEnumerable<Pawn> AssignedPawns {
-            get { return owners; }
-        }
-
-        public int MaxAssignedPawnsCount {
-            get {
-                if (!Spawned) {
-                    return 0;
-                }
-
-                return this.OccupiedRect().ContractedBy(WallThickness).Cells.Count();
-            }
-        }
+        public int MaxAssignedPawnsCount => Spawned ? this.OccupiedRect().ContractedBy(WallThickness).Cells.Count() : 0;
 
         public bool AssignedAnything(Pawn pawn) {
             return false;
         }
 
-        public float QuarryPercent {
+        private float QuarryPercent {
             get {
                 if (QuarrySettings.QuarryMaxHealth == int.MaxValue) {
                     return 100f;
@@ -84,10 +62,6 @@ namespace Quarry {
 
                 return quarryPercent * 100f;
             }
-        }
-
-        public bool HasConnectedPlatform {
-            get { return !facilityComp.LinkedFacilitiesListForReading.NullOrEmpty(); }
         }
 
         private IEnumerable<ThingDef> ChunksUnder {
@@ -110,44 +84,26 @@ namespace Quarry {
             }
         }
 
-        #endregion Public Properties
-
-        #region Protected Properties
-
         protected virtual int QuarryDamageMultiplier => 1;
         protected virtual int SinkholeFrequency => 100;
 
         protected virtual IEnumerable<IntVec3> LadderOffsets =>
-            new List<IntVec3>() {
+            new List<IntVec3> {
                 Static.LadderOffset_Big1,
                 Static.LadderOffset_Big2,
                 Static.LadderOffset_Big3,
                 Static.LadderOffset_Big4
             };
 
-        #endregion Protected Properties
-
-        #region Private Properties
-
-        private int OwnerInspectCount => (owners.Count > 3) ? 3 : owners.Count;
-
         private bool PlayerCanSeeOwners {
             get {
-                if (Faction == Faction.OfPlayer) {
-                    return true;
-                }
-
-                for (int i = 0; i < owners.Count; i++) {
-                    if (owners[i].Faction == Faction.OfPlayer || owners[i].HostFaction == Faction.OfPlayer) {
-                        return true;
-                    }
-                }
-
-                return false;
+                return Faction == Faction.OfPlayer || owners.Any(
+                           pawn => pawn.Faction == Faction.OfPlayer || pawn.HostFaction == Faction.OfPlayer
+                       );
             }
         }
 
-        private List<string> RockTypesUnder {
+        private IEnumerable<string> RockTypesUnder {
             get {
                 if (rockTypesUnder.Count <= 0) {
                     rockTypesUnder = RockTypesFromMap();
@@ -157,25 +113,15 @@ namespace Quarry {
             }
         }
 
-        private string HaulDescription {
-            get { return (autoHaul ? Static.LabelHaul : Static.LabelNotHaul); }
-        }
-
-        #endregion Private Properties
-
-
-        #region MethodGroup_Root
-
-        #region MethodGroup_SaveLoad
-
         public override void ExposeData() {
             base.ExposeData();
+
             if (Scribe.mode == LoadSaveMode.Saving) {
-                owners.RemoveAll((Pawn x) => x.Destroyed);
+                owners.RemoveAll(pawn => pawn.Destroyed);
             }
 
-            Scribe_Values.Look(ref autoHaul, "QRY_boolAutoHaul", true);
-            Scribe_Values.Look(ref mineModeToggle, "QRY_mineMode", true);
+            Scribe_Values.Look(ref AutoHaul, "QRY_boolAutoHaul", true);
+            Scribe_Values.Look(ref MineModeToggle, "QRY_mineMode", true);
             Scribe_Values.Look(ref quarryPercent, "QRY_quarryPercent", 1f);
             Scribe_Values.Look(ref jobsCompleted, "QRY_jobsCompleted", 0);
             Scribe_Collections.Look(ref rockTypesUnder, "QRY_rockTypesUnder", LookMode.Value);
@@ -186,12 +132,10 @@ namespace Quarry {
             }
         }
 
-
         public override void PostMake() {
             base.PostMake();
             firstSpawn = true;
         }
-
 
         public override void SpawnSetup(Map map, bool respawningAfterLoad) {
             base.SpawnSetup(map, respawningAfterLoad);
@@ -200,19 +144,19 @@ namespace Quarry {
 
             if (!firstSpawn)
                 return;
-            
+
             // Set the initial quarry health
             quarryPercent = 1f;
 
             CellRect buildingArea = this.OccupiedRect();
-            
+
             // Remove this area from the quarry grid. Quarries can never be built here again
             map.GetComponent<QuarryGrid>().RemoveFromGrid(buildingArea);
 
             foreach (IntVec3 cell in buildingArea) {
                 // What type of terrain are we over?
                 string rockType = cell.GetTerrain(Map).defName.Split('_').First();
-            
+
                 // If this is a valid rock type, add it to the list
                 if (QuarryUtility.IsValidQuarryRock(rockType)) {
                     rockTypesUnder.Add(rockType);
@@ -229,7 +173,7 @@ namespace Quarry {
 
             // Now that all the cells have been processed, create ThingDef lists
             MakeThingDefListsFrom(RockTypesUnder);
-            
+
             // Spawn filth for the quarry
             foreach (IntVec3 cell in buildingArea) {
                 SpawnFilth(cell);
@@ -242,17 +186,19 @@ namespace Quarry {
             }
         }
 
-
         public override void Destroy(DestroyMode mode = DestroyMode.Vanish) {
             RemoveAllOwners();
-            foreach (IntVec3 c in GenAdj.CellsOccupiedBy(this)) {
-                // Change the terrain here back to quarried stone, removing the walls
-                Map.terrainGrid.SetTerrain(c, QuarryDefOf.QRY_QuarriedGround);
+
+            // Change the terrain here back to quarried stone, removing the walls
+            foreach (IntVec3 cell in GenAdj.CellsOccupiedBy(this)) {
+                Map.terrainGrid.SetTerrain(cell, QuarryDefOf.QRY_QuarriedGround);
             }
 
             if (!QuarrySettings.letterSent && !TutorSystem.AdaptiveTrainingEnabled) {
-                Find.LetterStack.ReceiveLetter(Static.LetterLabel, Static.LetterText, QuarryDefOf.CuproLetter,
-                    new RimWorld.Planet.GlobalTargetInfo(Position, Map));
+                Find.LetterStack.ReceiveLetter(
+                    Static.LetterLabel, Static.LetterText, QuarryDefOf.CuproLetter, new GlobalTargetInfo(Position, Map)
+                );
+                
                 QuarrySettings.letterSent = true;
             }
 
@@ -263,17 +209,11 @@ namespace Quarry {
             base.Destroy(mode);
         }
 
-        #endregion MethodGroup_SaveLoad
-
-
-        #region MethodGroup_Assigning
-
         public void TryAssignPawn(Pawn pawn) {
             if (!owners.Contains(pawn)) {
                 owners.Add(pawn);
             }
         }
-
 
         public void TryUnassignPawn(Pawn pawn) {
             if (owners.Contains(pawn)) {
@@ -281,45 +221,42 @@ namespace Quarry {
             }
         }
 
-
-        public void SortOwners() {
-            owners.SortBy((Pawn x) => x.thingIDNumber);
+        private void SortOwners() {
+            owners.SortBy(owner => owner.thingIDNumber);
         }
-
 
         private void RemoveAllOwners() {
             owners.Clear();
         }
 
-        #endregion MethodGroup_Assigning
-
-
-        #region MethodGroup_Quarry
-
         private List<string> RockTypesFromMap() {
             // Try to add all the rock types found in the map
             List<string> list = new List<string>();
-            List<string> tempRockTypesUnder = Find.World.NaturalRockTypesIn(Map.Tile).Select(r => r.LabelCap).ToList();
-            foreach (string str in tempRockTypesUnder) {
-                if (QuarryUtility.IsValidQuarryRock(str)) {
-                    list.Add(str);
+
+            // TODO: check if LabelCap not affected by localization
+            List<string> tempRockTypesUnder =
+                Find.World.NaturalRockTypesIn(Map.Tile).Select(rockType => rockType.LabelCap).ToList();
+
+            foreach (string rockType in tempRockTypesUnder) {
+                if (QuarryUtility.IsValidQuarryRock(rockType)) {
+                    list.Add(rockType);
                 }
             }
 
+            if (list.Count > 0)
+                return list;
+
             // This will cause an error if there still isn't a list, so make a new one using known rocks
-            if (list.Count <= 0) {
-                Log.Warning("Quarry:: No valid rock types were found in the map. Building list using vanilla rocks.");
-                list = new List<string>() {"Sandstone", "Limestone", "Granite", "Marble", "Slate"};
-            }
+            Log.Warning("Quarry:: No valid rock types were found in the map. Building list using vanilla rocks.");
+            list = new List<string> {"Sandstone", "Limestone", "Granite", "Marble", "Slate"};
 
             return list;
         }
 
-
         private void MakeThingDefListsFrom(IEnumerable<string> names) {
             chunksUnder = new List<ThingDef>();
             blocksUnder = new List<ThingDef>();
-            
+
             foreach (string name in names) {
                 if (QuarryUtility.IsValidQuarryChunk(name, out ThingDef chunk)) {
                     chunksUnder.Add(chunk);
@@ -331,7 +268,6 @@ namespace Quarry {
             }
         }
 
-
         private void SpawnFilth(IntVec3 cell) {
             // Skip this cell if it is occupied by a placed object
             // This is to avoid save compression errors
@@ -342,7 +278,7 @@ namespace Quarry {
             }
 
             int filthAmount = Rand.RangeInclusive(1, 100);
-            
+
             // If this cell isn't filthy enough, skip it
             if (filthAmount <= 20) {
                 return;
@@ -354,7 +290,7 @@ namespace Quarry {
             }
             else {
                 GenSpawn.Spawn(ThingMaker.MakeThing(ThingDefOf.Filth_RubbleRock), cell, Map);
-             
+
                 // Check for chunks
                 if (filthAmount > 80) {
                     GenSpawn.Spawn(ThingMaker.MakeThing(ChunksUnder.RandomElement()), cell, Map);
@@ -387,7 +323,7 @@ namespace Quarry {
 
             // Cache values since this process is convoluted and the values need to remain the same
             bool junkMined = Rand.Chance(QuarrySettings.junkChance / 100f);
-            bool chunkMined = Rand.Chance(QuarrySettings.chunkChance / 100f); 
+            bool chunkMined = Rand.Chance(QuarrySettings.chunkChance / 100f);
 
             switch (resourceRequested) {
                 // Check for blocks first to prevent spawning chunks (these would just be cut into blocks)
@@ -421,32 +357,33 @@ namespace Quarry {
                 // The quarry was most likely toggled off while a pawn was still working. Give junk
                 case ResourceRequest.None:
                     return ThingDefOf.Filth_RubbleRock;
-                
+
                 default:
                     return ThingDefOf.Filth_RubbleRock;
             }
 
         }
 
-
         private void QuarryMined(int damage = 1) {
-            quarryPercent = ((QuarrySettings.quarryMaxHealth * quarryPercent) - (damage * QuarryDamageMultiplier)) /
+            // TODO: too complicated, best is to save currentHealth
+            // ??? problem - settings change will affect it then
+            quarryPercent = (QuarrySettings.quarryMaxHealth * quarryPercent - damage * QuarryDamageMultiplier) /
                             QuarrySettings.quarryMaxHealth;
         }
 
+        public bool TryFindBestPlatformCell(Thing thing, Pawn carrier, Map map, Faction faction,
+            out IntVec3 foundCell) {
 
-        public bool TryFindBestPlatformCell(Thing t, Pawn carrier, Map map, Faction faction, out IntVec3 foundCell) {
-            List<Thing> facilities = facilityComp.LinkedFacilitiesListForReading;
-            for (int f = 0; f < facilities.Count; f++) {
-                if (facilities[f].GetSlotGroup() == null || !facilities[f].GetSlotGroup().Settings.AllowedToAccept(t)) {
-                    continue;
-                }
+            IEnumerable<Thing> allowedStorages = facilityComp.LinkedFacilitiesListForReading
+                .Where(facilities => facilities.GetSlotGroup()?.Settings.AllowedToAccept(thing) == true);
 
-                foreach (IntVec3 c in GenAdj.CellsOccupiedBy(facilities[f])) {
-                    if (StoreUtility.IsGoodStoreCell(c, map, t, carrier, faction)) {
-                        foundCell = c;
-                        return true;
-                    }
+            foreach (Thing storage in allowedStorages) {
+                foreach (IntVec3 cell in GenAdj.CellsOccupiedBy(storage)) {
+                    if (!StoreUtility.IsGoodStoreCell(cell, map, thing, carrier, faction))
+                        continue;
+
+                    foundCell = cell;
+                    return true;
                 }
             }
 
@@ -454,91 +391,84 @@ namespace Quarry {
             return false;
         }
 
-        #endregion MethodGroup_Quarry
-
-
-        #region MethodGroup_Inspecting
-
         public override IEnumerable<Gizmo> GetGizmos() {
-            Command_Action mineMode = new Command_Action() {
-                icon = (mineModeToggle ? Static.DesignationQuarryResources : Static.DesignationQuarryBlocks),
-                defaultLabel = (mineModeToggle ? Static.LabelMineResources : Static.LabelMineBlocks),
-                defaultDesc = (mineModeToggle ? Static.DescriptionMineResources : Static.DescriptionMineBlocks),
+
+            // TODO: maybe this should be Command_Toggle
+            Command_Action mineMode = new Command_Action {
+                icon = MineModeToggle ? Static.DesignationQuarryResources : Static.DesignationQuarryBlocks,
+                defaultLabel = MineModeToggle ? Static.LabelMineResources : Static.LabelMineBlocks,
+                defaultDesc = MineModeToggle ? Static.DescriptionMineResources : Static.DescriptionMineBlocks,
                 hotKey = KeyBindingDefOf.Misc10,
                 activateSound = SoundDefOf.Click,
-                action = () => { mineModeToggle = !mineModeToggle; },
+                action = () => { MineModeToggle = !MineModeToggle; },
             };
+
             // Only allow this option if stonecutting has been researched
             // The default behavior is to allow resources, but not blocks
+
+            // TODO: never saw this working
             if (!QuarryDefOf.Stonecutting.IsFinished) {
                 mineMode.Disable(Static.ReportGizmoLackingResearch);
             }
 
             yield return mineMode;
 
-            yield return new Command_Toggle() {
+            yield return new Command_Toggle {
                 icon = Static.DesignationHaul,
                 defaultLabel = Static.LabelHaulMode,
-                defaultDesc = HaulDescription,
+                defaultDesc = AutoHaul ? Static.LabelHaul : Static.LabelNotHaul,
                 hotKey = KeyBindingDefOf.Misc11,
                 activateSound = SoundDefOf.Click,
-                isActive = () => autoHaul,
-                toggleAction = () => { autoHaul = !autoHaul; },
+                isActive = () => AutoHaul,
+                toggleAction = () => { AutoHaul = !AutoHaul; }
             };
 
             yield return new Command_Action {
                 defaultLabel = Static.CommandBedSetOwnerLabel,
-                icon = ContentFinder<Texture2D>.Get("UI/Commands/AssignOwner", true),
+                icon = Static.DesignationSetOwners,
                 defaultDesc = Static.CommandSetOwnerDesc,
-                action = delegate { Find.WindowStack.Add(new Dialog_AssignBuildingOwner(this)); },
+                action = () => Find.WindowStack.Add(new Dialog_AssignBuildingOwner(this)),
                 hotKey = KeyBindingDefOf.Misc3
             };
 
-            if (base.GetGizmos() != null) {
-                foreach (Command c in base.GetGizmos()) {
-                    yield return c;
-                }
+            foreach (Gizmo baseGizmo in base.GetGizmos()) {
+                yield return baseGizmo;
             }
         }
 
-
         public override string GetInspectString() {
+            const int maxNamesToShow = 3;
+
             StringBuilder stringBuilder = new StringBuilder();
             stringBuilder.AppendLine(Static.InspectQuarryPercent + ": " + QuarryPercent.ToStringDecimalIfSmall() + "%");
-            if (PlayerCanSeeOwners) {
-                stringBuilder.AppendLine("ForColonistUse".Translate());
-                if (owners.Count == 0) {
+
+            if (!PlayerCanSeeOwners)
+                return stringBuilder.ToString();
+
+            stringBuilder.AppendLine("ForColonistUse".Translate());
+
+            switch (owners.Count) {
+                case 0:
                     stringBuilder.AppendLine("Owner".Translate() + ": " + "Nobody".Translate().ToLower());
-                }
-                else if (owners.Count == 1) {
+                    break;
+                case 1:
                     stringBuilder.AppendLine("Owner".Translate() + ": " + owners[0].Label);
-                }
-                else {
-                    stringBuilder.Append("Owners".Translate() + ": ");
-                    bool conjugate = false;
-                    for (int i = 0; i < OwnerInspectCount; i++) {
-                        if (conjugate) {
-                            stringBuilder.Append(", ");
-                        }
+                    break;
+                default: {
+                    string[] ownerNames = owners.Take(maxNamesToShow).Select(owner => owner.LabelShort).ToArray();
+                    stringBuilder.Append("Owners".Translate() + ": " + string.Join(", ", ownerNames));
 
-                        conjugate = true;
-                        stringBuilder.Append(owners[i].LabelShort);
-                    }
-
-                    if (owners.Count > 3) {
-                        stringBuilder.Append($" (+ {owners.Count - 3})");
+                    if (owners.Count > maxNamesToShow) {
+                        stringBuilder.Append($" (+ {owners.Count - maxNamesToShow})");
                     }
 
                     stringBuilder.AppendLine();
+                    break;
                 }
             }
 
             return stringBuilder.ToString().TrimEndNewlines();
         }
-
-        #endregion MethodGroup_Inspecting
-
-        #endregion MethodGroup_Root
 
     }
 

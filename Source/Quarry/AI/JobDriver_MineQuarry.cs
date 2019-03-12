@@ -119,7 +119,7 @@ namespace Quarry {
             pawn.records.Increment(QuarryDefOf.QRY_CellsMined);
 
             // Use the mineModeToggle to determine the request
-            ResourceRequest requestedResources = Quarry.mineModeToggle
+            ResourceRequest requestedResources = Quarry.MineModeToggle
                 ? ResourceRequest.Resources
                 : ResourceRequest.Blocks;
 
@@ -220,7 +220,7 @@ namespace Quarry {
                 EndJobWith(JobCondition.Succeeded);
             }
 
-            else if (Quarry.autoHaul) {
+            else if (Quarry.AutoHaul) {
                 // If this is a chunk or slag, mark it as haulable if allowed to
                 if (givenResourceType.designateHaulable) {
                     Designation haulDesignation = new Designation(givenResource, DesignationDefOf.Haul);
