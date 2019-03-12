@@ -7,6 +7,7 @@ using Verse;
 namespace Quarry {
 
     // ReSharper disable once UnusedMember.Global
+    // ReSharper disable once InconsistentNaming
     public class PlaceWorker_Quarry : PlaceWorker {
 
         public override AcceptanceReport AllowsPlacing(

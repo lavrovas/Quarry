@@ -5,6 +5,7 @@ using RimWorld;
 using Verse;
 using UnityEngine;
 
+// ReSharper disable once CheckNamespace
 namespace Quarry {
 
     public static class OreDictionary {
@@ -23,70 +24,63 @@ namespace Quarry {
         };
 
         private static Predicate<ThingDef> validOre = (
-            (ThingDef def) => def.mineable &&
-                              def != QuarryDefOf.MineableComponentsIndustrial &&
-                              def.building != null &&
-                              def.building.isResourceRock &&
-                              def.building.mineableThing != null
+            thing => thing.mineable &&
+                     thing.building != null &&
+                     thing.building.isResourceRock &&
+                     thing.building.mineableThing != null &&
+                     thing != QuarryDefOf.MineableComponentsIndustrial
         );
 
 
         public static void Build() {
-            List<ThingCountExposable> oreDictionary = new List<ThingCountExposable>();
-
             // Get all ThingDefs that have mineable resources
             IEnumerable<ThingDef> ores = DefDatabase<ThingDef>.AllDefs.Where((ThingDef def) => validOre(def));
 
             // Assign commonality values for ores
-            foreach (ThingDef ore in ores) {
-                oreDictionary.Add(new ThingCountExposable(ore.building.mineableThing, ValueForMineableOre(ore)));
-            }
+            List<ThingCountExposable> oreDictionary = 
+                ores.Select(ore => new ThingCountExposable(ore.building.mineableThing, ValueForMineableOre(ore)))
+                    .ToList();
 
             // Get the rarest ore in the list
-            int num = MaxWeight;
-            for (int i = 0; i < oreDictionary.Count; i++) {
-                if (oreDictionary[i].count < num) {
-                    num = oreDictionary[i].count;
-                }
-            }
+            int componentsCount = oreDictionary
+                .Select(thingCount => thingCount.count)
+                .Concat(new[] {MaxWeight})
+                .Min();
 
-            num += num / 2;
+            componentsCount += componentsCount / 2;
 
             // Manually add components
-            oreDictionary.Add(new ThingCountExposable(ThingDefOf.ComponentIndustrial, num));
+            oreDictionary.Add(new ThingCountExposable(ThingDefOf.ComponentIndustrial, componentsCount));
 
             // Assign this dictionary for the mod to use
             QuarrySettings.oreDictionary = oreDictionary;
         }
 
 
-        public static int ValueForMineableOre(ThingDef def) {
-            if (!validOre(def)) {
-                Log.Error($"Quarry:: Unable to process def {def.LabelCap} as a mineable resource rock.");
+        private static int ValueForMineableOre(ThingDef ore) {
+            if (!validOre(ore)) {
+                Log.Error($"Quarry:: Unable to process def {ore.defName} as a mineable resource rock.");
                 return 0;
             }
 
-            float valDeep = Mathf.Clamp(def.building.mineableThing.deepCommonality, 0f, 1.5f);
-            float valScatter = def.building.mineableScatterCommonality *
-                               commonalityCurve.Evaluate(def.building.mineableScatterCommonality);
-            float valMarket = Math.Max(def.building.mineableThing.BaseMarketValue / 5f, 2f);
+            float valDeep = Mathf.Clamp(ore.building.mineableThing.deepCommonality, 0f, 1.5f);
+            float valScatter = ore.building.mineableScatterCommonality *
+                               commonalityCurve.Evaluate(ore.building.mineableScatterCommonality);
+            float valMarket = Math.Max(ore.building.mineableThing.BaseMarketValue / 5f, 2f);
 
-            return (int) ((valDeep * valScatter * 50f) / valMarket);
+            return (int) (50f * valDeep * valScatter / valMarket);
         }
 
 
-        public static float WeightAsPercentageOf(this List<ThingCountExposable> dictionary, int weight) {
-            float sum = 0;
-
-            for (int i = 0; i < dictionary.Count; i++) {
-                sum += dictionary[i].count;
-            }
+        public static float WeightAsPercentageOf(this IEnumerable<ThingCountExposable> dictionary, int weight) {
+            float sum = dictionary.Sum(thingCount => thingCount.count);
 
             return (weight / sum) * 100f;
         }
 
 
         public static ThingDef TakeOne() {
+            
             // Make sure there is a dictionary to work from
             if (QuarrySettings.oreDictionary == null) {
                 Build();
@@ -96,10 +90,7 @@ namespace Quarry {
             List<ThingCountExposable> sortedWeights = Sort(QuarrySettings.oreDictionary);
 
             // Sums all weights
-            int sum = 0;
-            for (int i = 0; i < QuarrySettings.oreDictionary.Count; i++) {
-                sum += QuarrySettings.oreDictionary[i].count;
-            }
+            int sum = QuarrySettings.oreDictionary.Sum(t => t.count);
 
             // Randomizes a number from Zero to Sum
             int roll = rand.Next(0, sum);
