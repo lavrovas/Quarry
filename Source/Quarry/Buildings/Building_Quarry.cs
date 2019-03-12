@@ -25,6 +25,7 @@ namespace Quarry {
 
     }
 
+    // ReSharper disable once InconsistentNaming
     [StaticConstructorOnStartup]
     public class Building_Quarry : Building, IAssignableBuilding {
 
