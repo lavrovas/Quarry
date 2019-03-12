@@ -4,12 +4,15 @@ using RimWorld;
 using Verse;
 using Verse.AI;
 
+// ReSharper disable once CheckNamespace
 namespace Quarry {
 
+    // ReSharper disable once UnusedMember.Global
+    // ReSharper disable once InconsistentNaming
     public class WorkGiver_MineQuarry : WorkGiver_Scanner {
 
-        public override Job JobOnThing(Pawn pawn, Thing t, bool forced = false) {
-            Building_Quarry quarry = t as Building_Quarry;
+        public override Job JobOnThing(Pawn pawn, Thing thing, bool forced = false) {
+            Building_Quarry quarry = thing as Building_Quarry;
 
             // Make sure a permitted quarry is found, and that it has resources, and does not have too many workers
             if (quarry == null || quarry.IsForbidden(pawn) || quarry.Depleted) {
