@@ -90,7 +90,7 @@ namespace Quarry {
             get { return !facilityComp.LinkedFacilitiesListForReading.NullOrEmpty(); }
         }
 
-        public List<ThingDef> ChunksUnder {
+        private IEnumerable<ThingDef> ChunksUnder {
             get {
                 if (chunksUnder.Count <= 0) {
                     MakeThingDefListsFrom(RockTypesUnder);
@@ -100,7 +100,7 @@ namespace Quarry {
             }
         }
 
-        public List<ThingDef> BlocksUnder {
+        private IEnumerable<ThingDef> BlocksUnder {
             get {
                 if (blocksUnder.Count <= 0) {
                     MakeThingDefListsFrom(RockTypesUnder);
@@ -117,16 +117,13 @@ namespace Quarry {
         protected virtual int QuarryDamageMultiplier => 1;
         protected virtual int SinkholeFrequency => 100;
 
-        protected virtual List<IntVec3> LadderOffsets {
-            get {
-                return new List<IntVec3>() {
-                    Static.LadderOffset_Big1,
-                    Static.LadderOffset_Big2,
-                    Static.LadderOffset_Big3,
-                    Static.LadderOffset_Big4
-                };
-            }
-        }
+        protected virtual IEnumerable<IntVec3> LadderOffsets =>
+            new List<IntVec3>() {
+                Static.LadderOffset_Big1,
+                Static.LadderOffset_Big2,
+                Static.LadderOffset_Big3,
+                Static.LadderOffset_Big4
+            };
 
         #endregion Protected Properties
 
@@ -201,43 +198,47 @@ namespace Quarry {
 
             facilityComp = GetComp<CompAffectedByFacilities>();
 
-            if (firstSpawn) {
-                // Set the initial quarry health
-                quarryPercent = 1f;
+            if (!firstSpawn)
+                return;
+            
+            // Set the initial quarry health
+            quarryPercent = 1f;
 
-                CellRect rect = this.OccupiedRect();
-                // Remove this area from the quarry grid. Quarries can never be built here again
-                map.GetComponent<QuarryGrid>().RemoveFromGrid(rect);
+            CellRect buildingArea = this.OccupiedRect();
+            
+            // Remove this area from the quarry grid. Quarries can never be built here again
+            map.GetComponent<QuarryGrid>().RemoveFromGrid(buildingArea);
 
-                foreach (IntVec3 c in rect) {
-                    // What type of terrain are we over?
-                    string rockType = c.GetTerrain(Map).defName.Split('_').First();
-                    // If this is a valid rock type, add it to the list
-                    if (QuarryUtility.IsValidQuarryRock(rockType)) {
-                        rockTypesUnder.Add(rockType);
-                    }
-
-                    // Change the terrain here to be quarried stone					
-                    if (rect.ContractedBy(WallThickness).Contains(c)) {
-                        Map.terrainGrid.SetTerrain(c, QuarryDefOf.QRY_QuarriedGround);
-                    }
-                    else {
-                        Map.terrainGrid.SetTerrain(c, QuarryDefOf.QRY_QuarriedGroundWall);
-                    }
+            foreach (IntVec3 cell in buildingArea) {
+                // What type of terrain are we over?
+                string rockType = cell.GetTerrain(Map).defName.Split('_').First();
+            
+                // If this is a valid rock type, add it to the list
+                if (QuarryUtility.IsValidQuarryRock(rockType)) {
+                    rockTypesUnder.Add(rockType);
                 }
 
-                // Now that all the cells have been processed, create ThingDef lists
-                MakeThingDefListsFrom(RockTypesUnder);
-                // Spawn filth for the quarry
-                foreach (IntVec3 c in rect) {
-                    SpawnFilth(c);
+                // Change the terrain here to be quarried stone					
+                if (buildingArea.ContractedBy(WallThickness).Contains(cell)) {
+                    Map.terrainGrid.SetTerrain(cell, QuarryDefOf.QRY_QuarriedGround);
                 }
+                else {
+                    Map.terrainGrid.SetTerrain(cell, QuarryDefOf.QRY_QuarriedGroundWall);
+                }
+            }
 
-                // Change the ground back to normal quarried stone where the ladders are
-                // This is to negate the speed decrease and encourages pawns to use the ladders
-                foreach (IntVec3 offset in LadderOffsets) {
-                    Map.terrainGrid.SetTerrain(Position + offset.RotatedBy(Rotation), QuarryDefOf.QRY_QuarriedGround);
-                }
+            // Now that all the cells have been processed, create ThingDef lists
+            MakeThingDefListsFrom(RockTypesUnder);
+            
+            // Spawn filth for the quarry
+            foreach (IntVec3 cell in buildingArea) {
+                SpawnFilth(cell);
+            }
+
+            // Change the ground back to normal quarried stone where the ladders are
+            // This is to negate the speed decrease and encourages pawns to use the ladders
+            foreach (IntVec3 offset in LadderOffsets) {
+                Map.terrainGrid.SetTerrain(Position + offset.RotatedBy(Rotation), QuarryDefOf.QRY_QuarriedGround);
             }
         }
 
@@ -315,33 +316,33 @@ namespace Quarry {
         }
 
 
-        private void MakeThingDefListsFrom(List<string> stringList) {
+        private void MakeThingDefListsFrom(IEnumerable<string> names) {
             chunksUnder = new List<ThingDef>();
             blocksUnder = new List<ThingDef>();
-            foreach (string str in stringList) {
-                if (QuarryUtility.IsValidQuarryChunk(str, out ThingDef chunk)) {
+            
+            foreach (string name in names) {
+                if (QuarryUtility.IsValidQuarryChunk(name, out ThingDef chunk)) {
                     chunksUnder.Add(chunk);
                 }
 
-                if (QuarryUtility.IsValidQuarryBlocks(str, out ThingDef blocks)) {
-                    blocksUnder.Add(blocks);
+                if (QuarryUtility.IsValidQuarryBlocks(name, out ThingDef block)) {
+                    blocksUnder.Add(block);
                 }
             }
         }
 
 
-        private void SpawnFilth(IntVec3 c) {
-            List<Thing> thingsInCell = new List<Thing>();
+        private void SpawnFilth(IntVec3 cell) {
             // Skip this cell if it is occupied by a placed object
             // This is to avoid save compression errors
-            thingsInCell = Map.thingGrid.ThingsListAtFast(c);
-            for (int t = 0; t < thingsInCell.Count; t++) {
-                if (thingsInCell[t].def.saveCompressible) {
-                    return;
-                }
+
+            List<Thing> thingsInCell = Map.thingGrid.ThingsListAtFast(cell);
+            if (thingsInCell.Any(thing => thing.def.saveCompressible)) {
+                return;
             }
 
             int filthAmount = Rand.RangeInclusive(1, 100);
+            
             // If this cell isn't filthy enough, skip it
             if (filthAmount <= 20) {
                 return;
@@ -349,13 +350,14 @@ namespace Quarry {
 
             // Check for dirt filth
             if (filthAmount <= 40) {
-                GenSpawn.Spawn(ThingMaker.MakeThing(ThingDefOf.Filth_Dirt), c, Map);
+                GenSpawn.Spawn(ThingMaker.MakeThing(ThingDefOf.Filth_Dirt), cell, Map);
             }
             else {
-                GenSpawn.Spawn(ThingMaker.MakeThing(ThingDefOf.Filth_RubbleRock), c, Map);
+                GenSpawn.Spawn(ThingMaker.MakeThing(ThingDefOf.Filth_RubbleRock), cell, Map);
+             
                 // Check for chunks
                 if (filthAmount > 80) {
-                    GenSpawn.Spawn(ThingMaker.MakeThing(ChunksUnder.RandomElement()), c, Map);
+                    GenSpawn.Spawn(ThingMaker.MakeThing(ChunksUnder.RandomElement()), cell, Map);
                 }
             }
         }
