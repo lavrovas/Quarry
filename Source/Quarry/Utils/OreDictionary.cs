@@ -32,28 +32,25 @@ namespace Quarry {
         );
 
 
-        public static List<ThingCountExposable> Build() {
+        public static Dictionary<ThingDef, int> Build() {
             // Get all ThingDefs that have mineable resources
-            IEnumerable<ThingDef> ores = DefDatabase<ThingDef>.AllDefs.Where((ThingDef def) => validOre(def));
-
-            // Assign commonality values for ores
-            List<ThingCountExposable> oreDictionary = 
-                ores.Select(ore => new ThingCountExposable(ore.building.mineableThing, ValueForMineableOre(ore)))
-                    .ToList();
+            // And assign commonality values for ores
+            Dictionary<ThingDef, int> oreDictionary = DefDatabase<ThingDef>.AllDefs
+                .Where(definition => validOre(definition))
+                .ToDictionary(ore => ore.building.mineableThing, ValueForMineableOre);
 
             // Get the rarest ore in the list
             int componentsCount = oreDictionary
-                .Select(thingCount => thingCount.count)
-                .Concat(new[] {MaxWeight})
-                .Min();
+                .Concat(new KeyValuePair<ThingDef, int>(null, MaxWeight))
+                .MinBy(pair => pair.Value)
+                .Value;
 
             componentsCount += componentsCount / 2;
 
             // Manually add components
-            oreDictionary.Add(new ThingCountExposable(ThingDefOf.ComponentIndustrial, componentsCount));
+            oreDictionary.Add(ThingDefOf.ComponentIndustrial, componentsCount);
             return oreDictionary;
         }
-
 
         private static int ValueForMineableOre(ThingDef ore) {
             if (!validOre(ore)) {
@@ -69,13 +66,11 @@ namespace Quarry {
             return (int) (50f * valDeep * valScatter / valMarket);
         }
 
+        public static float WeightAsPercentageOf(this Dictionary<ThingDef, int> dictionary, int weight) {
+            float sum = dictionary.Sum(thingCount => thingCount.Value);
 
-        public static float WeightAsPercentageOf(this IEnumerable<ThingCountExposable> dictionary, int weight) {
-            float sum = dictionary.Sum(thingCount => thingCount.count);
-
-            return (weight / sum) * 100f;
+            return weight / sum * 100f;
         }
-
 
         public static ThingDef TakeOne() {
             
@@ -85,37 +80,20 @@ namespace Quarry {
             }
 
             // Sorts the weight list
-            List<ThingCountExposable> sortedWeights = Sort(QuarrySettings.oreDictionary);
+            var sortedWeights = QuarrySettings.oreDictionary.OrderBy(pair => pair.Value);
 
             // Sums all weights
-            int sum = QuarrySettings.oreDictionary.Sum(t => t.count);
+            int sum = QuarrySettings.oreDictionary.Sum(pair => pair.Value);
 
             // Randomizes a number from Zero to Sum
             int roll = rand.Next(0, sum);
-
+            
+            // TODO: not sure it works as before
             // Finds chosen item based on weight
-            ThingDef selected = sortedWeights[sortedWeights.Count - 1].thingDef;
-            for (int j = 0; j < sortedWeights.Count; j++) {
-                if (roll < sortedWeights[j].count) {
-                    selected = sortedWeights[j].thingDef;
-                    break;
-                }
-
-                roll -= sortedWeights[j].count;
-            }
+            ThingDef selected = sortedWeights.FirstOrDefault(pair => roll < pair.Value).Key;
 
             // Returns the selected item
             return selected;
-        }
-
-
-        private static List<ThingCountExposable> Sort(List<ThingCountExposable> weights) {
-            List<ThingCountExposable> list = new List<ThingCountExposable>(weights);
-
-            // Sorts the Weights List for randomization later
-            list.Sort();
-
-            return list;
         }
 
     }

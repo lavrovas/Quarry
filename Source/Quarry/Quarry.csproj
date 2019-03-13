@@ -63,7 +63,6 @@
     <Compile Include="Utils\QuarrySettings.cs" />
     <Compile Include="Utils\OreDictionary.cs" />
     <Compile Include="Static\Static.cs" />
-    <Compile Include="Utils\ThingCountExposable.cs" />
     <Compile Include="AI\WorkGiver_MineQuarry.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

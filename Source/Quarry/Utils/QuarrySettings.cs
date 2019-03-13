@@ -10,7 +10,7 @@ namespace Quarry {
         internal static int quarryMaxHealth = 2000;
         internal static int junkChance = 60;
         internal static int chunkChance = 50;
-        internal static List<ThingCountExposable> oreDictionary = null;
+        internal static Dictionary<ThingDef, int> oreDictionary = null;
         internal static List<ThingDef> database;
 
         internal static int QuarryMaxHealth {
@@ -34,8 +34,8 @@ namespace Quarry {
             Scribe_Collections.Look(ref oreDictionary, "QRY_OreDictionary");
             
             Dictionary<ThingDef, int> mineableItems = new Dictionary<ThingDef, int>();
-            foreach (ThingCountExposable thingCountExposable in oreDictionary) {
-                mineableItems.Add(thingCountExposable.thingDef, thingCountExposable.count);
+            foreach (KeyValuePair<ThingDef, int> pair in oreDictionary) {
+                mineableItems.Add(pair.Key, pair.Value);
             }
             
             Scribe_Collections.Look(ref mineableItems, "MineableItems", LookMode.Def, LookMode.Value);
@@ -51,11 +51,11 @@ namespace Quarry {
                 return;
             
            
-            List<ThingCountExposable> dict = new List<ThingCountExposable>();
+            Dictionary<ThingDef, int> dict = new Dictionary<ThingDef, int>();
             bool warning = false;
-            foreach (ThingCountExposable thingCount in oreDictionary) {
-                if (thingCount != null) {
-                    dict.Add(new ThingCountExposable(thingCount.thingDef, thingCount.count));
+            foreach (KeyValuePair<ThingDef, int> pair in oreDictionary) {
+                if (pair.Key != null) {
+                    dict.Add(pair.Key, pair.Value);
                 }
                 else if (!warning) {
                     warning = true;
