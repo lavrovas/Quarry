@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using RimWorld;
 using UnityEngine;
 using Verse;
 
@@ -12,13 +13,11 @@ namespace Quarry {
         private Vector2 scrollPosition = Vector2.zero;
         private float scrollViewHeight = 0f;
 
-
         public QuarryMod(ModContentPack mcp) : base(mcp) {
             LongEventHandler.ExecuteWhenFinished(GetSettings);
             LongEventHandler.ExecuteWhenFinished(PushDatabase);
             LongEventHandler.ExecuteWhenFinished(BuildDictionary);
         }
-
 
         private void GetSettings() {
             GetSettings<QuarrySettings>();
@@ -27,7 +26,6 @@ namespace Quarry {
         private void PushDatabase() {
             QuarrySettings.database = DefDatabase<ThingDef>.AllDefsListForReading;
         }
-
 
         private static void BuildDictionary() {
             if (QuarrySettings.oreDictionary == null) {
@@ -40,67 +38,67 @@ namespace Quarry {
         }
 
         public override void DoSettingsWindowContents(Rect rect) {
-            Listing_Standard list = new Listing_Standard() {
+
+            Listing_Standard listing = new Listing_Standard {
                 ColumnWidth = rect.width
             };
 
-            list.Begin(rect);
-            list.Gap(10);
+            listing.Begin(rect);
+
+            listing.Gap(10);
             {
-                Rect fullRect = list.GetRect(Text.LineHeight);
-                Rect leftRect = fullRect.LeftHalf().Rounded();
-                Rect rightRect = fullRect.RightHalf().Rounded();
-
-                string depletionLabel = QuarrySettings.quarryMaxHealth <= 10000
-                    ? "QRY_DepletionLabel".Translate(QuarrySettings.quarryMaxHealth.ToString("N0"))
-                    : "QRY_DepletionLabel".Translate("Infinite");
-                Widgets.Label(leftRect, depletionLabel);
-
-                //Increment timer value by -100 (button).
-                if (Widgets.ButtonText(new Rect(rightRect.xMin, rightRect.y, rightRect.height, rightRect.height), "-",
-                    true, false, true)) {
-                    if (QuarrySettings.quarryMaxHealth >= 200) {
-                        QuarrySettings.quarryMaxHealth -= 100;
-                    }
-                }
-
-                QuarrySettings.quarryMaxHealth = Widgets.HorizontalSlider(
-                    new Rect(rightRect.xMin + rightRect.height + 10f, rightRect.y,
-                        rightRect.width - ((rightRect.height * 2) + 20f), rightRect.height),
-                    QuarrySettings.quarryMaxHealth, 100f, 10100f, true
-                ).RoundToAsInt(100);
-
-                //Increment timer value by +100 (button).
-                if (Widgets.ButtonText(
-                    new Rect(rightRect.xMax - rightRect.height, rightRect.y, rightRect.height, rightRect.height), "+",
-                    true, false, true)) {
-                    if (QuarrySettings.quarryMaxHealth < 10100) {
-                        QuarrySettings.quarryMaxHealth += 100;
-                    }
-                }
-
-                list.Gap(25);
                 {
-                    Rect letterRect = list.GetRect(Text.LineHeight).LeftHalf().Rounded();
+                    Rect fullRect = listing.GetRect(Text.LineHeight);
+                    Rect leftRect = fullRect.LeftHalf().Rounded();
+                    Rect rightRect = fullRect.RightHalf().Rounded();
 
-                    Widgets.CheckboxLabeled(letterRect, Static.LetterSent, ref QuarrySettings.letterSent);
-                    if (Mouse.IsOver(letterRect)) {
-                        Widgets.DrawHighlight(letterRect);
+                    string depletionLabel = QuarrySettings.quarryMaxHealth <= 10000
+                        ? "QRY_DepletionLabel".Translate(QuarrySettings.quarryMaxHealth.ToString("N0"))
+                        : "QRY_DepletionLabel".Translate("Infinite");
+                    Widgets.Label(leftRect, depletionLabel);
+
+                    //Increment timer value by -100 (button).
+                    Rect minusButtonRectangle =
+                        new Rect(rightRect.xMin, rightRect.y, rightRect.height, rightRect.height);
+                    bool minusButtonPressed = Widgets.ButtonText(minusButtonRectangle, "-", true, false, true);
+                    if (minusButtonPressed) {
+                        if (QuarrySettings.quarryMaxHealth >= 200) {
+                            QuarrySettings.quarryMaxHealth -= 100;
+                        }
                     }
 
-                    TooltipHandler.TipRegion(letterRect, Static.ToolTipLetter);
+                    Rect maxHealthSliderRectangle = new Rect(
+                        rightRect.xMin + rightRect.height + 10f, rightRect.y,
+                        rightRect.width - rightRect.height * 2 - 20f, rightRect.height
+                    );
+                    QuarrySettings.quarryMaxHealth = Widgets.HorizontalSlider(maxHealthSliderRectangle,
+                        QuarrySettings.quarryMaxHealth, 100f, 10100f, true
+                    ).RoundToAsInt(100);
+
+                    //Increment timer value by +100 (button).
+                    Rect plusButtonRectangle =
+                        new Rect(rightRect.xMax - rightRect.height, rightRect.y, rightRect.height, rightRect.height);
+                    bool plusButtonPressed = Widgets.ButtonText(plusButtonRectangle, "+", true, false, true);
+                    if (plusButtonPressed) {
+                        if (QuarrySettings.quarryMaxHealth < 10100) {
+                            QuarrySettings.quarryMaxHealth += 100;
+                        }
+                    }
+
+                    // TODO: no tooltip here, why?
                 }
 
-                list.Gap(25);
+                listing.Gap(10);
                 {
-                    Rect junkRect = list.GetRect(Text.LineHeight).LeftHalf().Rounded();
-                    Rect junkSliderOffset = junkRect.RightHalf().Rounded().RightPartPixels(200);
+                    Rect junkRect = listing.GetRect(Text.LineHeight);
+                    
+                    Widgets.Label(junkRect.LeftHalf().Rounded(), "QRY_SettingsJunkChance".Translate(QuarrySettings.junkChance));
 
-                    Widgets.Label(junkRect, "QRY_SettingsJunkChance".Translate(QuarrySettings.junkChance));
+                    Rect junkSliderOffset = junkRect.RightHalf().Rounded();
                     QuarrySettings.junkChance = Widgets.HorizontalSlider(
-                        junkSliderOffset,
-                        QuarrySettings.junkChance, 0f, 100f, true
+                        junkSliderOffset,QuarrySettings.junkChance, 0f, 100f, true
                     ).RoundToAsInt(5);
+
                     if (Mouse.IsOver(junkRect)) {
                         Widgets.DrawHighlight(junkRect);
                     }
@@ -108,16 +106,18 @@ namespace Quarry {
                     TooltipHandler.TipRegion(junkRect, Static.ToolTipJunkChance);
                 }
 
-                list.Gap(25);
+                listing.Gap(10);
                 {
-                    Rect chunkRect = list.GetRect(Text.LineHeight).LeftHalf().Rounded();
-                    Rect chunkSliderOffset = chunkRect.RightHalf().Rounded().RightPartPixels(200);
+                    Rect chunkRect = listing.GetRect(Text.LineHeight);
+                    Rect chunkLabelOffset = chunkRect.LeftHalf().Rounded();
+                    Rect chunkSliderOffset = chunkRect.RightHalf().Rounded();
 
-                    Widgets.Label(chunkRect, "QRY_SettingsChunkChance".Translate(QuarrySettings.chunkChance));
+                    Widgets.Label(chunkLabelOffset, "QRY_SettingsChunkChance".Translate(QuarrySettings.chunkChance));
                     QuarrySettings.chunkChance = Widgets.HorizontalSlider(
                         chunkSliderOffset,
                         QuarrySettings.chunkChance, 0f, 100f, true
                     ).RoundToAsInt(5);
+
                     if (Mouse.IsOver(chunkRect)) {
                         Widgets.DrawHighlight(chunkRect);
                     }
@@ -125,19 +125,36 @@ namespace Quarry {
                     TooltipHandler.TipRegion(chunkRect, Static.ToolTipChunkChance);
                 }
 
-                list.Gap(15);
+                // TODO: consider if it is nessessary to allow user resend letter
+                listing.Gap(10);
                 {
-                    Rect labelRect = list.GetRect(32).Rounded();
+                    Rect letterRect = listing.GetRect(Text.LineHeight).LeftHalf().Rounded();
+
+                    Widgets.CheckboxLabeled(letterRect, Static.LetterSent, ref QuarrySettings.letterSent);
+
+                    if (Mouse.IsOver(letterRect)) {
+                        Widgets.DrawHighlight(letterRect);
+                    }
+
+                    TooltipHandler.TipRegion(letterRect, Static.ToolTipLetter);
+                }
+
+                listing.Gap(15);
+                {
+                    Rect labelRect = listing.GetRect(32).Rounded();
+
                     Text.Font = GameFont.Medium;
                     Text.Anchor = TextAnchor.MiddleCenter;
+
                     Widgets.Label(labelRect, Static.LabelDictionary);
+
                     Text.Font = GameFont.Small;
                     Text.Anchor = TextAnchor.UpperLeft;
                 }
 
-                list.Gap(1);
+                listing.Gap(1);
                 {
-                    Rect buttonsRect = list.GetRect(Text.LineHeight).Rounded();
+                    Rect buttonsRect = listing.GetRect(Text.LineHeight).Rounded();
                     Rect addRect = buttonsRect.LeftThird();
                     Rect rmvRect = buttonsRect.MiddleThird();
                     Rect resRect = buttonsRect.RightThird();
@@ -197,9 +214,11 @@ namespace Quarry {
                     }
                 }
 
-                list.Gap(5);
+                listing.Gap(5);
                 {
-                    Rect listRect = list.GetRect(300f).Rounded();
+                    float height = rect.height - listing.CurHeight;
+                    Rect listRect = listing.GetRect(height).Rounded();
+                    
                     Rect cRect = listRect.ContractedBy(10f);
                     Rect position = new Rect(cRect.x, cRect.y, cRect.width, cRect.height);
                     Rect outRect = new Rect(0f, 0f, position.width, position.height);
@@ -227,20 +246,21 @@ namespace Quarry {
                         Widgets.Label(labelRect, tc.value.thingDef.LabelCap);
                         Widgets.Label(pctRect,
                             $"{QuarrySettings.oreDictionary.WeightAsPercentageOf(tc.value.count).ToStringDecimal()}%");
-                        int val = tc.value.count;
+
                         string nullString = null;
+
                         Widgets.TextFieldNumeric(
                             texEntryRect,
                             ref QuarrySettings.oreDictionary[tc.index].count,
                             ref nullString,
                             0, OreDictionary.MaxWeight);
-                        val = Widgets.HorizontalSlider(
+
+                        int val = Widgets.HorizontalSlider(
                             sliderRect,
                             QuarrySettings.oreDictionary[tc.index].count, 0f, OreDictionary.MaxWeight, true
                         ).RoundToAsInt(1);
-                        if (val != QuarrySettings.oreDictionary[tc.index].count) {
-                            QuarrySettings.oreDictionary[tc.index].count = val;
-                        }
+
+                        QuarrySettings.oreDictionary[tc.index].count = val;
 
                         if (Mouse.IsOver(entryRect)) {
                             Widgets.DrawHighlight(entryRect);
@@ -256,7 +276,7 @@ namespace Quarry {
                     GUI.EndGroup();
                 }
 
-                list.End();
+                listing.End();
             }
         }
 
