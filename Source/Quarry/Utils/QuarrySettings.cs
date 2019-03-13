@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Verse;
 
+// ReSharper disable once CheckNamespace
 namespace Quarry {
 
     public class QuarrySettings : ModSettings {
@@ -34,22 +35,24 @@ namespace Quarry {
 
             // Remove all null entries in the oreDictionary
             // This is most likely due to removing a mod, which will trigger a game reset
-            if (Scribe.mode == LoadSaveMode.LoadingVars) {
-                List<ThingCountExposable> dict = new List<ThingCountExposable>();
-                bool warning = false;
-                for (int i = 0; i < oreDictionary.Count; i++) {
-                    if (oreDictionary[i] != null) {
-                        dict.Add(new ThingCountExposable(oreDictionary[i].thingDef, oreDictionary[i].count));
-                    }
-                    else if (!warning) {
-                        warning = true;
-                        Log.Warning(
-                            "Quarry:: Found 1 or more null entries in ore dictionary. This is most likely due to an uninstalled mod. Removing entries from list.");
-                    }
+            if (Scribe.mode != LoadSaveMode.LoadingVars)
+                return;
+            
+           
+            List<ThingCountExposable> dict = new List<ThingCountExposable>();
+            bool warning = false;
+            foreach (ThingCountExposable thingCount in oreDictionary) {
+                if (thingCount != null) {
+                    dict.Add(new ThingCountExposable(thingCount.thingDef, thingCount.count));
                 }
-
-                oreDictionary = dict;
+                else if (!warning) {
+                    warning = true;
+                    Log.Warning(
+                        "Quarry:: Found 1 or more null entries in ore dictionary. This is most likely due to an uninstalled mod. Removing entries from list.");
+                }
             }
+
+            oreDictionary = dict;
         }
 
     }

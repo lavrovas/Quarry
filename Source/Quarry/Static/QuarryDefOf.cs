@@ -1,6 +1,7 @@
 ﻿using Verse;
 using RimWorld;
 
+// ReSharper disable once CheckNamespace
 namespace Quarry {
 
     [DefOf]

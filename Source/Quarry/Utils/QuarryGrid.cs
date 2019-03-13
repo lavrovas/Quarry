@@ -1,9 +1,11 @@
 ﻿using UnityEngine;
 using Verse;
 
+// ReSharper disable once CheckNamespace
 namespace Quarry {
 
-    public sealed class QuarryGrid : MapComponent, ICellBoolGiver, IExposable {
+    // ReSharper disable once ClassNeverInstantiated.Global
+    public sealed class QuarryGrid : MapComponent, ICellBoolGiver {
 
         private BoolGrid boolGrid;
         private CellBoolDrawer drawer;
@@ -31,6 +33,7 @@ namespace Quarry {
 
         public override void FinalizeInit() {
             base.FinalizeInit();
+
             // Create a new boolGrid - this also gets called for old saves where
             // there wasn't a QuarryGrid present
             if (boolGrid.TrueCount == 0) {

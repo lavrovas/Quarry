@@ -1,11 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Verse;
 
+// ReSharper disable once CheckNamespace
 namespace Quarry {
 
+    // ReSharper disable once UnusedMember.Global
     public sealed class QuarryMod : Mod {
 
         private Vector2 scrollPosition = Vector2.zero;
@@ -19,24 +20,18 @@ namespace Quarry {
         }
 
 
-        public void GetSettings() {
+        private void GetSettings() {
             GetSettings<QuarrySettings>();
         }
-
-
-        public override void WriteSettings() {
-            base.WriteSettings();
-        }
-
 
         private void PushDatabase() {
             QuarrySettings.database = DefDatabase<ThingDef>.AllDefsListForReading;
         }
 
 
-        private void BuildDictionary() {
+        private static void BuildDictionary() {
             if (QuarrySettings.oreDictionary == null) {
-                OreDictionary.Build();
+                QuarrySettings.oreDictionary = OreDictionary.Build();
             }
         }
 
@@ -56,13 +51,10 @@ namespace Quarry {
                 Rect leftRect = fullRect.LeftHalf().Rounded();
                 Rect rightRect = fullRect.RightHalf().Rounded();
 
-                if (QuarrySettings.quarryMaxHealth <= 10000) {
-                    Widgets.Label(leftRect,
-                        "QRY_DepletionLabel".Translate(QuarrySettings.quarryMaxHealth.ToString("N0")));
-                }
-                else {
-                    Widgets.Label(leftRect, "QRY_DepletionLabel".Translate("Infinite"));
-                }
+                string depletionLabel = QuarrySettings.quarryMaxHealth <= 10000
+                    ? "QRY_DepletionLabel".Translate(QuarrySettings.quarryMaxHealth.ToString("N0"))
+                    : "QRY_DepletionLabel".Translate("Infinite");
+                Widgets.Label(leftRect, depletionLabel);
 
                 //Increment timer value by -100 (button).
                 if (Widgets.ButtonText(new Rect(rightRect.xMin, rightRect.y, rightRect.height, rightRect.height), "-",

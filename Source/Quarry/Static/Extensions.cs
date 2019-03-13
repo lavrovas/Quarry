@@ -1,6 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
+// ReSharper disable once CheckNamespace
 namespace Quarry {
 
     public static class Extensions {

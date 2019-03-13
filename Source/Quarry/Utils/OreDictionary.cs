@@ -32,7 +32,7 @@ namespace Quarry {
         );
 
 
-        public static void Build() {
+        public static List<ThingCountExposable> Build() {
             // Get all ThingDefs that have mineable resources
             IEnumerable<ThingDef> ores = DefDatabase<ThingDef>.AllDefs.Where((ThingDef def) => validOre(def));
 
@@ -51,9 +51,7 @@ namespace Quarry {
 
             // Manually add components
             oreDictionary.Add(new ThingCountExposable(ThingDefOf.ComponentIndustrial, componentsCount));
-
-            // Assign this dictionary for the mod to use
-            QuarrySettings.oreDictionary = oreDictionary;
+            return oreDictionary;
         }
 
 

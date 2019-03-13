@@ -2,8 +2,11 @@
 using RimWorld;
 using Verse;
 
+// ReSharper disable once CheckNamespace
 namespace Quarry {
 
+    // ReSharper disable once InconsistentNaming
+    // ReSharper disable once UnusedMember.Global
     public class Designator_ReclaimSoil : Designator {
 
         public override int DraggableDimensions => 2;

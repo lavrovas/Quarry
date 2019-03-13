@@ -2,6 +2,7 @@
 using UnityEngine;
 using Verse;
 
+// ReSharper disable once CheckNamespace
 namespace Quarry {
 
     [StaticConstructorOnStartup]
@@ -19,7 +20,8 @@ namespace Quarry {
         public static Texture2D DesignationSetOwners =
             ContentFinder<Texture2D>.Get("UI/Commands/AssignOwner", false);
 
-        public static Texture2D DesignationHaul = ContentFinder<Texture2D>.Get("UI/Designators/Haul");
+        public static Texture2D DesignationHaul = 
+            ContentFinder<Texture2D>.Get("UI/Designators/Haul");
 
         public static Graphic Platform_Bricks = GraphicDatabase.Get<Graphic_Single>(
             "Cupro/Object/Platform/Platform_Bricks", ShaderDatabase.DefaultShader, new Vector2(3, 3), Color.white);

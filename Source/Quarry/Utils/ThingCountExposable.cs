@@ -29,7 +29,6 @@ namespace Quarry {
             return count.CompareTo(other.count);
         }
 
-        // TODO: not sure how this works
         public void ExposeData() {
             Scribe_Defs.Look(ref thingDef, "thingDef");
             Scribe_Values.Look(ref count, "count", 0, false);
