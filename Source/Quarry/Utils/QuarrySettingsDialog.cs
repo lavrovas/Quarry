@@ -22,8 +22,8 @@ namespace Quarry {
             float width = controlRectangle.width;
             float buttonWidth = controlRectangle.height;
 
-            string depletionLabel = QuarrySettings.quarryMaxHealth <= 10000
-                ? "QRY_DepletionLabel".Translate(QuarrySettings.quarryMaxHealth.ToString("N0"))
+            string depletionLabel = quarryMaxHealth <= 10000
+                ? "QRY_DepletionLabel".Translate(quarryMaxHealth.ToString("N0"))
                 : "QRY_DepletionLabel".Translate("Infinite");
             Widgets.Label(labelRectangle, depletionLabel);
 
@@ -31,25 +31,23 @@ namespace Quarry {
             Rect minusButtonRectangle = controlRectangle.LeftPartPixels(buttonWidth);
 
             bool minusButtonPressed = Widgets.ButtonText(minusButtonRectangle, "-");
-            if (minusButtonPressed && QuarrySettings.quarryMaxHealth > 100) {
-                QuarrySettings.quarryMaxHealth -= 100;
+            if (minusButtonPressed && quarryMaxHealth > 100) {
+                quarryMaxHealth -= 100;
             }
 
             Rect sliderRectangle =
                 controlRectangle.LeftPartPixels(width - buttonWidth - 10).RightPartPixels(width - 2 * buttonWidth - 10);
 
-            int quarryMaxHealth = Widgets.HorizontalSlider(
-                sliderRectangle, QuarrySettings.quarryMaxHealth, 100f, 10100f, true
+            quarryMaxHealth = Widgets.HorizontalSlider(
+                sliderRectangle, quarryMaxHealth, 100f, 10100f, true
             ).RoundToAsInt(100);
-
-            QuarrySettings.quarryMaxHealth = quarryMaxHealth;
 
             // Increment timer value by +100 (button).
             Rect plusButtonRectangle = controlRectangle.RightPartPixels(buttonWidth);
 
             bool plusButtonPressed = Widgets.ButtonText(plusButtonRectangle, "+");
-            if (plusButtonPressed && QuarrySettings.quarryMaxHealth < 10100) {
-                QuarrySettings.quarryMaxHealth += 100;
+            if (plusButtonPressed && quarryMaxHealth < 10100) {
+                quarryMaxHealth += 100;
             }
 
             if (Mouse.IsOver(row)) {
@@ -66,13 +64,11 @@ namespace Quarry {
             Rect labelRectangle = row.LeftHalf().Rounded();
             Rect sliderRectangle = row.RightHalf().Rounded();
 
-            Widgets.Label(labelRectangle, "QRY_SettingsJunkChance".Translate(QuarrySettings.junkChance));
+            Widgets.Label(labelRectangle, "QRY_SettingsJunkChance".Translate(junkChance));
 
-            int junkChance = Widgets.HorizontalSlider(
-                sliderRectangle, QuarrySettings.junkChance, 0f, 100f, true
+            junkChance = Widgets.HorizontalSlider(
+                sliderRectangle, junkChance, 0f, 100f, true
             ).RoundToAsInt(5);
-
-            QuarrySettings.junkChance = junkChance;
 
             if (Mouse.IsOver(row)) {
                 Widgets.DrawHighlight(row);
@@ -81,7 +77,7 @@ namespace Quarry {
             TooltipHandler.TipRegion(row, Static.ToolTipJunkChance);
         }
 
-        private static void DrawChunckChanceControls(Listing listing) {
+        private static void DrawChunkChanceControls(Listing listing) {
 
             Rect row = listing.GetRect(Text.LineHeight);
 
@@ -127,7 +123,7 @@ namespace Quarry {
             Widgets.Label(labelRectangle, Static.LabelDictionary);
 
             Text.Font = GameFont.Small;
-            Text.Anchor = TextAnchor.MiddleLeft;
+            Text.Anchor = TextAnchor.UpperLeft;
         }
 
         private static void DrawButtons(Listing listing) {
@@ -188,7 +184,7 @@ namespace Quarry {
             if (!Widgets.ButtonText(buttonRectangle, Static.LabelResetList))
                 return;
 
-            OreDictionary.Build();
+            oreDictionary = OreDictionary.Build();
         }
 
         private void DrawList(Listing listing, float height) {
@@ -197,22 +193,22 @@ namespace Quarry {
             const float iconWidth = rowHeight;
             const float inputWidth = 60f;
 
-            Dictionary<ThingDef, int> savedOres = new Dictionary<ThingDef, int>(oreDictionary);
-            
+
             Rect listRectangle = listing.GetRect(height).Rounded();
 
             Rect cRect = listRectangle.ContractedBy(10f);
             Rect position = new Rect(cRect.x, cRect.y, cRect.width, cRect.height);
 
             Rect outRectangle = new Rect(0f, 0f, position.width, position.height);
-            Rect viewRectangle = new Rect(0f, 0f, position.width - 16f, savedOres.Count * rowHeight);
-            
+            Rect viewRectangle = new Rect(0f, 0f, position.width - 16f, oreDictionary.Count * rowHeight);
+
 
             GUI.BeginGroup(position);
             Widgets.BeginScrollView(outRectangle, ref scrollPosition, viewRectangle);
 
-            var indexedOres = savedOres.Select((pair, index) => new {pair, index});
-
+            Text.Anchor = TextAnchor.MiddleLeft;
+            
+            var indexedOres = new Dictionary<ThingDef, int>(oreDictionary).Select((pair, index) => new {pair, index});
             foreach (var indexed in indexedOres) {
 
                 int index = indexed.index;
@@ -236,28 +232,23 @@ namespace Quarry {
                 Widgets.ThingIcon(iconRect, definition);
                 Widgets.Label(labelRect, definition.LabelCap);
                 Widgets.TextFieldNumeric(inputRect, ref weight, ref buffer, 1, OreDictionary.MaxWeight);
-                Widgets.Label(percentRect, $"{savedOres.WeightAsShare(weight):P1}");
-                
-                weight = Widgets
+                Widgets.Label(percentRect, $"{oreDictionary.WeightAsShare(weight):P1}");
+
+                oreDictionary[definition] = Widgets
                     .HorizontalSlider(sliderRect, weight, 0f, OreDictionary.MaxWeight, true)
                     .RoundToAsInt(1);
-                
-                oreDictionary[definition] = weight;
 
                 if (Mouse.IsOver(row)) {
                     Widgets.DrawHighlight(row);
                 }
 
                 TooltipHandler.TipRegion(thingRect, definition.description);
-
             }
+
+            Text.Anchor = TextAnchor.UpperLeft;
 
             Widgets.EndScrollView();
             GUI.EndGroup();
-            
-            // TODO: remove
-            Text.Anchor = TextAnchor.UpperLeft;
-
         }
 
     }

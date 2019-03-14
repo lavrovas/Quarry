@@ -50,7 +50,7 @@ namespace Quarry {
             DrawJunkChanceControls(listing);
 
             listing.Gap(10);
-            DrawChunckChanceControls(listing);
+            DrawChunkChanceControls(listing);
 
             // TODO: consider if it is nessessary to allow user resend letter
             listing.Gap(10);
