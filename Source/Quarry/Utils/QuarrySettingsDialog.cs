@@ -9,47 +9,46 @@ namespace Quarry {
     // ReSharper disable once UnusedMember.Global
     public sealed partial class QuarryMod {
 
+        // TODO: Is .Rounded() really needed here?
+
         private static void DrawBuildingHealthControls(Listing listing) {
 
             Rect row = listing.GetRect(Text.LineHeight);
-            Rect labelRect = row.LeftHalf().Rounded();
-            Rect controlsRect = row.RightHalf().Rounded();
+
+            Rect labelRectangle = row.LeftHalf().Rounded();
+            Rect controlRectangle = row.RightHalf().Rounded();
+
+            float width = controlRectangle.width;
+            float buttonWidth = controlRectangle.height;
 
             string depletionLabel = QuarrySettings.quarryMaxHealth <= 10000
                 ? "QRY_DepletionLabel".Translate(QuarrySettings.quarryMaxHealth.ToString("N0"))
                 : "QRY_DepletionLabel".Translate("Infinite");
-            Widgets.Label(labelRect, depletionLabel);
+            Widgets.Label(labelRectangle, depletionLabel);
 
             // Increment timer value by -100 (button).
-            Rect minusButtonRectangle = new Rect(
-                controlsRect.xMin, controlsRect.y, controlsRect.height, controlsRect.height
-            );
+            Rect minusButtonRectangle = controlRectangle.LeftPartPixels(buttonWidth);
+
             bool minusButtonPressed = Widgets.ButtonText(minusButtonRectangle, "-");
-            if (minusButtonPressed) {
-                if (QuarrySettings.quarryMaxHealth >= 200) {
-                    QuarrySettings.quarryMaxHealth -= 100;
-                }
+            if (minusButtonPressed && QuarrySettings.quarryMaxHealth > 100) {
+                QuarrySettings.quarryMaxHealth -= 100;
             }
 
-            Rect maxHealthSliderRectangle = new Rect(
-                controlsRect.xMin + controlsRect.height + 10f,
-                controlsRect.y,
-                controlsRect.width - controlsRect.height * 2 - 20f,
-                controlsRect.height
-            );
-            QuarrySettings.quarryMaxHealth = Widgets.HorizontalSlider(
-                maxHealthSliderRectangle, QuarrySettings.quarryMaxHealth, 100f, 10100f, true
+            Rect sliderRectangle =
+                controlRectangle.LeftPartPixels(width - buttonWidth - 10).RightPartPixels(width - 2 * buttonWidth - 10);
+
+            int quarryMaxHealth = Widgets.HorizontalSlider(
+                sliderRectangle, QuarrySettings.quarryMaxHealth, 100f, 10100f, true
             ).RoundToAsInt(100);
 
+            QuarrySettings.quarryMaxHealth = quarryMaxHealth;
+
             // Increment timer value by +100 (button).
-            Rect plusButtonRectangle = new Rect(
-                controlsRect.xMax - controlsRect.height, controlsRect.y, controlsRect.height, controlsRect.height
-            );
+            Rect plusButtonRectangle = controlRectangle.RightPartPixels(buttonWidth);
+
             bool plusButtonPressed = Widgets.ButtonText(plusButtonRectangle, "+");
-            if (plusButtonPressed) {
-                if (QuarrySettings.quarryMaxHealth < 10100) {
-                    QuarrySettings.quarryMaxHealth += 100;
-                }
+            if (plusButtonPressed && QuarrySettings.quarryMaxHealth < 10100) {
+                QuarrySettings.quarryMaxHealth += 100;
             }
 
             if (Mouse.IsOver(row)) {
@@ -63,12 +62,16 @@ namespace Quarry {
 
             Rect row = listing.GetRect(Text.LineHeight);
 
-            Widgets.Label(row.LeftHalf().Rounded(), "QRY_SettingsJunkChance".Translate(QuarrySettings.junkChance));
+            Rect labelRectangle = row.LeftHalf().Rounded();
+            Rect sliderRectangle = row.RightHalf().Rounded();
 
-            Rect junkSliderOffset = row.RightHalf().Rounded();
-            QuarrySettings.junkChance = Widgets.HorizontalSlider(
-                junkSliderOffset, QuarrySettings.junkChance, 0f, 100f, true
+            Widgets.Label(labelRectangle, "QRY_SettingsJunkChance".Translate(QuarrySettings.junkChance));
+
+            int junkChance = Widgets.HorizontalSlider(
+                sliderRectangle, QuarrySettings.junkChance, 0f, 100f, true
             ).RoundToAsInt(5);
+
+            QuarrySettings.junkChance = junkChance;
 
             if (Mouse.IsOver(row)) {
                 Widgets.DrawHighlight(row);
@@ -80,12 +83,13 @@ namespace Quarry {
         private static void DrawChunckChanceControls(Listing listing) {
 
             Rect row = listing.GetRect(Text.LineHeight);
-            Rect labelOffset = row.LeftHalf().Rounded();
-            Rect sliderOffset = row.RightHalf().Rounded();
 
-            Widgets.Label(labelOffset, "QRY_SettingsChunkChance".Translate(QuarrySettings.chunkChance));
+            Rect labelRectangle = row.LeftHalf().Rounded();
+            Rect sliderRectangle = row.RightHalf().Rounded();
+
+            Widgets.Label(labelRectangle, "QRY_SettingsChunkChance".Translate(QuarrySettings.chunkChance));
             QuarrySettings.chunkChance = Widgets.HorizontalSlider(
-                sliderOffset, QuarrySettings.chunkChance, 0f, 100f, true
+                sliderRectangle, QuarrySettings.chunkChance, 0f, 100f, true
             ).RoundToAsInt(5);
 
             if (Mouse.IsOver(row)) {
@@ -97,25 +101,29 @@ namespace Quarry {
 
         private static void DrawLetterSendControls(Listing listing) {
 
-            Rect letterRect = listing.GetRect(Text.LineHeight).LeftHalf().Rounded();
+            Rect row = listing.GetRect(Text.LineHeight);
 
-            Widgets.CheckboxLabeled(letterRect, Static.LetterSent, ref QuarrySettings.letterSent);
+            Rect letterRectangle = row.LeftHalf().Rounded();
 
-            if (Mouse.IsOver(letterRect)) {
-                Widgets.DrawHighlight(letterRect);
+            Widgets.CheckboxLabeled(letterRectangle, Static.LetterSent, ref QuarrySettings.letterSent);
+
+            if (Mouse.IsOver(letterRectangle)) {
+                Widgets.DrawHighlight(letterRectangle);
             }
 
-            TooltipHandler.TipRegion(letterRect, Static.ToolTipLetter);
+            TooltipHandler.TipRegion(letterRectangle, Static.ToolTipLetter);
         }
 
         private static void DrawTableHeader(Listing listing) {
 
-            Rect labelRect = listing.GetRect(32).Rounded();
-
             Text.Font = GameFont.Medium;
             Text.Anchor = TextAnchor.MiddleCenter;
 
-            Widgets.Label(labelRect, Static.LabelDictionary);
+            Rect row = listing.GetRect(Text.LineHeight);
+
+            Rect labelRectangle = row.Rounded();
+
+            Widgets.Label(labelRectangle, Static.LabelDictionary);
 
             Text.Font = GameFont.Small;
             Text.Anchor = TextAnchor.UpperLeft;
@@ -123,7 +131,7 @@ namespace Quarry {
 
         private static void DrawButtons(Listing listing) {
 
-            Rect row = listing.GetRect(Text.LineHeight).Rounded();
+            Rect row = listing.GetRect(Text.LineHeight);
 
             // Add an entry to the dictionary
             DrawAddButton(row);
@@ -137,8 +145,9 @@ namespace Quarry {
 
         private static void DrawAddButton(Rect row) {
 
-            Rect addRect = row.LeftThird();
-            if (!Widgets.ButtonText(addRect, Static.LabelAddThing))
+            Rect buttonRectangle = row.LeftThird();
+
+            if (!Widgets.ButtonText(buttonRectangle, Static.LabelAddThing))
                 return;
 
             List<FloatMenuOption> addMenuOptions = QuarryUtility.PossibleThingDefs()
@@ -154,11 +163,10 @@ namespace Quarry {
 
         private static void DrawRemoveButton(Rect row) {
 
-            Rect removeRect = row.MiddleThird();
-            if (!Widgets.ButtonText(
-                    removeRect, Static.LabelRemoveThing, active: QuarrySettings.oreDictionary.Count >= 2
-                )
-            )
+            Rect buttonRectangle = row.MiddleThird();
+            bool removeAllowed = QuarrySettings.oreDictionary.Count > 1;
+
+            if (!Widgets.ButtonText(buttonRectangle, Static.LabelRemoveThing, active: removeAllowed))
                 return;
 
             List<FloatMenuOption> removeMenuOptions = QuarrySettings.oreDictionary
@@ -174,40 +182,43 @@ namespace Quarry {
 
         private static void DrawResetButton(Rect row) {
 
-            Rect resetRect = row.RightThird();
-            if (Widgets.ButtonText(resetRect, Static.LabelResetList)) {
-                OreDictionary.Build();
-            }
+            Rect buttonRectangle = row.RightThird();
+
+            if (!Widgets.ButtonText(buttonRectangle, Static.LabelResetList))
+                return;
+
+            OreDictionary.Build();
         }
 
-        private void DrawTable(Listing listing, float height) {
+        private void DrawList(Listing listing, float height) {
 
             const float rowHeight = 32f;
             const float iconWidth = rowHeight;
             const float percentWidth = 40f;
 
-            Rect listRect = listing.GetRect(height).Rounded();
+            string uselessString = null;
 
-            Rect position = listRect.ContractedBy(10f);
+            Rect listRectangle = listing.GetRect(height).Rounded();
+
+            Rect position = listRectangle.ContractedBy(10f);
             // Rect position = new Rect(cRect.x, cRect.y, cRect.width, cRect.height);
 
-            Rect outRect = new Rect(0f, 0f, position.width, position.height);
-            Rect viewRect = new Rect(0f, 0f, position.width - 16f, scrollViewHeight);
+            Rect outRectangle = new Rect(0f, 0f, position.width, position.height);
+            Rect viewRectangle = new Rect(0f, 0f, position.width - 16f, scrollViewHeight);
 
             GUI.BeginGroup(position);
-            Widgets.BeginScrollView(outRect, ref scrollPosition, viewRect);
+            Widgets.BeginScrollView(outRectangle, ref scrollPosition, viewRectangle);
 
-            Dictionary<ThingDef, int> oreDictionary = QuarrySettings.oreDictionary;
-            var indexedOres = oreDictionary.Select((pair, index) => new {pair, index});
-            foreach (var ore in indexedOres) {
+            Dictionary<ThingDef, int> savedOres = new Dictionary<ThingDef, int>(QuarrySettings.oreDictionary);
+            var indexedOres = savedOres.Select((pair, index) => new {pair, index});
 
-                int index = ore.index;
-                ThingDef definition = ore.pair.Key;
-                int weight = ore.pair.Value;
-                string uselessString = null;
+            foreach (var indexed in indexedOres) {
 
+                int index = indexed.index;
+                ThingDef definition = indexed.pair.Key;
+                int weight = indexed.pair.Value;
 
-                Rect row = new Rect(0f, rowHeight * index, viewRect.width, rowHeight);
+                Rect row = new Rect(0f, rowHeight * index, viewRectangle.width, rowHeight);
 
                 Rect thingRect = row.LeftThird();
                 Rect iconRect = thingRect.LeftPartPixels(iconWidth);
@@ -223,13 +234,13 @@ namespace Quarry {
                 Widgets.ThingIcon(iconRect, definition);
                 Widgets.Label(labelRect, definition.LabelCap);
                 Widgets.TextFieldNumeric(inputRect, ref weight, ref uselessString, 1, OreDictionary.MaxWeight);
-                Widgets.Label(percentRect, $"{oreDictionary.WeightAsShare(weight):P}");
+                Widgets.Label(percentRect, $"{savedOres.WeightAsShare(weight):P}");
 
                 weight = Widgets
                     .HorizontalSlider(sliderRect, weight, 0f, OreDictionary.MaxWeight, true)
                     .RoundToAsInt(1);
 
-                oreDictionary[definition] = weight;
+                QuarrySettings.oreDictionary[definition] = weight;
 
                 if (Mouse.IsOver(row)) {
                     Widgets.DrawHighlight(row);

@@ -64,7 +64,7 @@ namespace Quarry {
             DrawButtons(listing);
 
             listing.Gap(5);
-            DrawTable(listing, rect.height - listing.CurHeight);
+            DrawList(listing, rect.height - listing.CurHeight);
 
             listing.End();
 

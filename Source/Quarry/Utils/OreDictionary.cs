@@ -66,11 +66,6 @@ namespace Quarry {
             return (int) (50f * valDeep * valScatter / valMarket);
         }
 
-        public static float WeightAsShare(this Dictionary<ThingDef, int> ores, int weight) {
-            float sum = ores.Sum(pair => pair.Value);
-            return weight / sum;
-        }
-
         public static ThingDef TakeOne() {
             
             // Make sure there is a dictionary to work from
