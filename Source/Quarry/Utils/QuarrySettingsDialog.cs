@@ -52,6 +52,10 @@ namespace Quarry {
                 }
             }
 
+            if (Mouse.IsOver(row)) {
+                Widgets.DrawHighlight(row);
+            }
+
             // TODO: no tooltip here, why?
         }
 
@@ -178,6 +182,10 @@ namespace Quarry {
 
         private void DrawTable(Listing listing, float height) {
 
+            const float rowHeight = 32f;
+            const float iconWidth = rowHeight;
+            const float percentWidth = 40f;
+
             Rect listRect = listing.GetRect(height).Rounded();
 
             Rect position = listRect.ContractedBy(10f);
@@ -192,28 +200,29 @@ namespace Quarry {
             Dictionary<ThingDef, int> oreDictionary = QuarrySettings.oreDictionary;
             var indexedOres = oreDictionary.Select((pair, index) => new {pair, index});
             foreach (var ore in indexedOres) {
-                const float rowHeight = 32f;
 
                 int index = ore.index;
                 ThingDef definition = ore.pair.Key;
                 int weight = ore.pair.Value;
-                string nullString = null;
+                string uselessString = null;
 
 
                 Rect row = new Rect(0f, rowHeight * index, viewRect.width, rowHeight);
 
-                Rect iconRect = row.LeftThird().LeftPartPixels(32f);
-                Rect labelRect = row.LeftThird().RightPartPixels(row.LeftThird().width - iconRect.width);
+                Rect thingRect = row.LeftThird();
+                Rect iconRect = thingRect.LeftPartPixels(iconWidth);
+                Rect labelRect = thingRect.RightPartPixels(thingRect.width - iconWidth - 1);
 
-                Rect inputRect = row.MiddleThird().LeftHalf().LeftPartPixels(60f);
-                Rect percentRect = row.MiddleThird().LeftHalf().RightPartPixels(40f);
+                Rect weightRect = row.MiddleThird().LeftHalf();
+                Rect inputRect = weightRect.LeftPartPixels(weightRect.width - percentWidth - 1);
+                Rect percentRect = weightRect.RightPartPixels(percentWidth);
 
                 Rect sliderRect = row.RightHalf();
 
 
                 Widgets.ThingIcon(iconRect, definition);
                 Widgets.Label(labelRect, definition.LabelCap);
-                Widgets.TextFieldNumeric(inputRect, ref weight, ref nullString, 1, OreDictionary.MaxWeight);
+                Widgets.TextFieldNumeric(inputRect, ref weight, ref uselessString, 1, OreDictionary.MaxWeight);
                 Widgets.Label(percentRect, $"{oreDictionary.WeightAsShare(weight):P}");
 
                 weight = Widgets
@@ -226,7 +235,7 @@ namespace Quarry {
                     Widgets.DrawHighlight(row);
                 }
 
-                TooltipHandler.TipRegion(row.LeftThird(), definition.description);
+                TooltipHandler.TipRegion(thingRect, definition.description);
 
                 scrollViewHeight += rowHeight * index;
             }
