@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Verse;
+using static Quarry.QuarrySettings;
 
 // ReSharper disable once CheckNamespace
 namespace Quarry {
@@ -87,9 +88,9 @@ namespace Quarry {
             Rect labelRectangle = row.LeftHalf().Rounded();
             Rect sliderRectangle = row.RightHalf().Rounded();
 
-            Widgets.Label(labelRectangle, "QRY_SettingsChunkChance".Translate(QuarrySettings.chunkChance));
-            QuarrySettings.chunkChance = Widgets.HorizontalSlider(
-                sliderRectangle, QuarrySettings.chunkChance, 0f, 100f, true
+            Widgets.Label(labelRectangle, "QRY_SettingsChunkChance".Translate(chunkChance));
+            chunkChance = Widgets.HorizontalSlider(
+                sliderRectangle, chunkChance, 0f, 100f, true
             ).RoundToAsInt(5);
 
             if (Mouse.IsOver(row)) {
@@ -105,7 +106,7 @@ namespace Quarry {
 
             Rect letterRectangle = row.LeftHalf().Rounded();
 
-            Widgets.CheckboxLabeled(letterRectangle, Static.LetterSent, ref QuarrySettings.letterSent);
+            Widgets.CheckboxLabeled(letterRectangle, Static.LetterSent, ref letterSent);
 
             if (Mouse.IsOver(letterRectangle)) {
                 Widgets.DrawHighlight(letterRectangle);
@@ -151,10 +152,10 @@ namespace Quarry {
                 return;
 
             List<FloatMenuOption> addMenuOptions = QuarryUtility.PossibleThingDefs()
-                .Where(thing => !QuarrySettings.oreDictionary.ContainsKey(thing))
+                .Where(thing => !oreDictionary.ContainsKey(thing))
                 .OrderBy(thing => thing.label)
                 .Select(thing =>
-                    new FloatMenuOption(thing.LabelCap, () => QuarrySettings.oreDictionary.Add(thing, 1)))
+                    new FloatMenuOption(thing.LabelCap, () => oreDictionary.Add(thing, 1)))
                 .ToList();
 
             FloatMenu menu = new FloatMenu(addMenuOptions);
@@ -164,16 +165,16 @@ namespace Quarry {
         private static void DrawRemoveButton(Rect row) {
 
             Rect buttonRectangle = row.MiddleThird();
-            bool removeAllowed = QuarrySettings.oreDictionary.Count > 1;
+            bool removeAllowed = oreDictionary.Count > 1;
 
             if (!Widgets.ButtonText(buttonRectangle, Static.LabelRemoveThing, active: removeAllowed))
                 return;
 
-            List<FloatMenuOption> removeMenuOptions = QuarrySettings.oreDictionary
+            List<FloatMenuOption> removeMenuOptions = oreDictionary
                 .Select(pair => pair.Key)
                 .OrderBy(thing => thing.label)
                 .Select(thing =>
-                    new FloatMenuOption(thing.LabelCap, () => QuarrySettings.oreDictionary.Remove(thing)))
+                    new FloatMenuOption(thing.LabelCap, () => oreDictionary.Remove(thing)))
                 .ToList();
 
             FloatMenu menu = new FloatMenu(removeMenuOptions);
@@ -196,9 +197,7 @@ namespace Quarry {
             const float iconWidth = rowHeight;
             const float inputWidth = 60f;
 
-            string uselessString = null;
-
-            Dictionary<ThingDef, int> savedOres = new Dictionary<ThingDef, int>(QuarrySettings.oreDictionary);
+            Dictionary<ThingDef, int> savedOres = new Dictionary<ThingDef, int>(oreDictionary);
             
             Rect listRectangle = listing.GetRect(height).Rounded();
 
@@ -220,6 +219,8 @@ namespace Quarry {
                 ThingDef definition = indexed.pair.Key;
                 int weight = indexed.pair.Value;
 
+                string buffer = null;
+
                 Rect row = new Rect(0f, rowHeight * index, viewRectangle.width, rowHeight);
 
                 Rect thingRect = row.LeftThird();
@@ -232,24 +233,16 @@ namespace Quarry {
 
                 Rect sliderRect = row.RightHalf();
 
-
                 Widgets.ThingIcon(iconRect, definition);
                 Widgets.Label(labelRect, definition.LabelCap);
-                Widgets.TextFieldNumeric(inputRect, ref weight, ref uselessString, 1, OreDictionary.MaxWeight);
+                Widgets.TextFieldNumeric(inputRect, ref weight, ref buffer, 1, OreDictionary.MaxWeight);
                 Widgets.Label(percentRect, $"{savedOres.WeightAsShare(weight):P1}");
-                QuarrySettings.oreDictionary[definition] = weight;
-                var before = weight;
                 
                 weight = Widgets
-                    .HorizontalSlider(sliderRect, QuarrySettings.oreDictionary[definition], 0f, OreDictionary.MaxWeight, true)
+                    .HorizontalSlider(sliderRect, weight, 0f, OreDictionary.MaxWeight, true)
                     .RoundToAsInt(1);
-
-                var after = weight;
-                    
-                Log.Message($"{before} -> {after}");
                 
-                if (QuarrySettings.oreDictionary[definition] != weight)
-                    QuarrySettings.oreDictionary[definition] = weight;
+                oreDictionary[definition] = weight;
 
                 if (Mouse.IsOver(row)) {
                     Widgets.DrawHighlight(row);
@@ -257,7 +250,6 @@ namespace Quarry {
 
                 TooltipHandler.TipRegion(thingRect, definition.description);
 
-                scrollViewHeight += rowHeight * index;
             }
 
             Widgets.EndScrollView();

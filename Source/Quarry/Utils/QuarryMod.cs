@@ -11,7 +11,6 @@ namespace Quarry {
     public sealed partial class QuarryMod : Mod {
 
         private Vector2 scrollPosition = Vector2.zero;
-        private float scrollViewHeight = 0f;
 
         public QuarryMod(ModContentPack mcp) : base(mcp) {
             LongEventHandler.ExecuteWhenFinished(GetSettings);

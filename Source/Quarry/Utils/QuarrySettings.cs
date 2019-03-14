@@ -31,19 +31,7 @@ namespace Quarry {
             Scribe_Values.Look(ref quarryMaxHealth, "QRY_quarryMaxHealth", 2000);
             Scribe_Values.Look(ref junkChance, "QRY_junkChance", 60);
             Scribe_Values.Look(ref chunkChance, "QRY_chunkChance", 50);
-            Scribe_Collections.Look(ref oreDictionary, "QRY_OreDictionary");
-            
-            Dictionary<ThingDef, int> mineableItems = new Dictionary<ThingDef, int>();
-            foreach (KeyValuePair<ThingDef, int> pair in oreDictionary) {
-                mineableItems.Add(pair.Key, pair.Value);
-            }
-            
-            Scribe_Collections.Look(ref mineableItems, "MineableItems", LookMode.Def, LookMode.Value);
-
-            Log.Message($"Dictionary size is: {mineableItems.Count}");
-            foreach (KeyValuePair<ThingDef,int> pair in mineableItems) {
-                Log.Message($"Loaded {pair.Key.defName}, weight: {pair.Value}");
-            }
+            Scribe_Collections.Look(ref oreDictionary, "QRY_OreDictionary",LookMode.Def, LookMode.Value);
             
             // Remove all null entries in the oreDictionary
             // This is most likely due to removing _another_ mod, which will trigger a game reset
