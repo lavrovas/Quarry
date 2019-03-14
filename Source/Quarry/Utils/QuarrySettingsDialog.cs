@@ -126,7 +126,7 @@ namespace Quarry {
             Widgets.Label(labelRectangle, Static.LabelDictionary);
 
             Text.Font = GameFont.Small;
-            Text.Anchor = TextAnchor.UpperLeft;
+            Text.Anchor = TextAnchor.MiddleLeft;
         }
 
         private static void DrawButtons(Listing listing) {
@@ -194,22 +194,24 @@ namespace Quarry {
 
             const float rowHeight = 32f;
             const float iconWidth = rowHeight;
-            const float percentWidth = 40f;
+            const float inputWidth = 60f;
 
             string uselessString = null;
 
+            Dictionary<ThingDef, int> savedOres = new Dictionary<ThingDef, int>(QuarrySettings.oreDictionary);
+            
             Rect listRectangle = listing.GetRect(height).Rounded();
 
-            Rect position = listRectangle.ContractedBy(10f);
-            // Rect position = new Rect(cRect.x, cRect.y, cRect.width, cRect.height);
+            Rect cRect = listRectangle.ContractedBy(10f);
+            Rect position = new Rect(cRect.x, cRect.y, cRect.width, cRect.height);
 
             Rect outRectangle = new Rect(0f, 0f, position.width, position.height);
-            Rect viewRectangle = new Rect(0f, 0f, position.width - 16f, scrollViewHeight);
+            Rect viewRectangle = new Rect(0f, 0f, position.width - 16f, savedOres.Count * rowHeight);
+            
 
             GUI.BeginGroup(position);
             Widgets.BeginScrollView(outRectangle, ref scrollPosition, viewRectangle);
 
-            Dictionary<ThingDef, int> savedOres = new Dictionary<ThingDef, int>(QuarrySettings.oreDictionary);
             var indexedOres = savedOres.Select((pair, index) => new {pair, index});
 
             foreach (var indexed in indexedOres) {
@@ -222,11 +224,11 @@ namespace Quarry {
 
                 Rect thingRect = row.LeftThird();
                 Rect iconRect = thingRect.LeftPartPixels(iconWidth);
-                Rect labelRect = thingRect.RightPartPixels(thingRect.width - iconWidth - 1);
+                Rect labelRect = thingRect.RightPartPixels(thingRect.width - iconWidth - 10);
 
                 Rect weightRect = row.MiddleThird().LeftHalf();
-                Rect inputRect = weightRect.LeftPartPixels(weightRect.width - percentWidth - 1);
-                Rect percentRect = weightRect.RightPartPixels(percentWidth);
+                Rect inputRect = weightRect.LeftPartPixels(inputWidth);
+                Rect percentRect = weightRect.RightPartPixels(weightRect.width - inputWidth - 10);
 
                 Rect sliderRect = row.RightHalf();
 
@@ -234,13 +236,20 @@ namespace Quarry {
                 Widgets.ThingIcon(iconRect, definition);
                 Widgets.Label(labelRect, definition.LabelCap);
                 Widgets.TextFieldNumeric(inputRect, ref weight, ref uselessString, 1, OreDictionary.MaxWeight);
-                Widgets.Label(percentRect, $"{savedOres.WeightAsShare(weight):P}");
-
+                Widgets.Label(percentRect, $"{savedOres.WeightAsShare(weight):P1}");
+                QuarrySettings.oreDictionary[definition] = weight;
+                var before = weight;
+                
                 weight = Widgets
-                    .HorizontalSlider(sliderRect, weight, 0f, OreDictionary.MaxWeight, true)
+                    .HorizontalSlider(sliderRect, QuarrySettings.oreDictionary[definition], 0f, OreDictionary.MaxWeight, true)
                     .RoundToAsInt(1);
 
-                QuarrySettings.oreDictionary[definition] = weight;
+                var after = weight;
+                    
+                Log.Message($"{before} -> {after}");
+                
+                if (QuarrySettings.oreDictionary[definition] != weight)
+                    QuarrySettings.oreDictionary[definition] = weight;
 
                 if (Mouse.IsOver(row)) {
                     Widgets.DrawHighlight(row);
@@ -253,6 +262,10 @@ namespace Quarry {
 
             Widgets.EndScrollView();
             GUI.EndGroup();
+            
+            // TODO: remove
+            Text.Anchor = TextAnchor.UpperLeft;
+
         }
 
     }

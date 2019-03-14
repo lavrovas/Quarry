@@ -55,10 +55,15 @@ namespace Quarry {
         }
 
         public static IEnumerable<ThingDef> PossibleThingDefs() {
-            return 
+            return
                 from thing in DefDatabase<ThingDef>.AllDefs
-                where (thing.category == ThingCategory.Item && thing.scatterableOnMapGen && !thing.destroyOnDrop &&
-                       !thing.MadeFromStuff && thing.GetCompProperties<CompProperties_Rottable>() == null)
+                where (
+                    thing.category == ThingCategory.Item
+                    && thing.scatterableOnMapGen
+                    && !thing.destroyOnDrop
+                    && !thing.MadeFromStuff
+                    && thing.GetCompProperties<CompProperties_Rottable>() == null
+                )
                 select thing;
         }
 
