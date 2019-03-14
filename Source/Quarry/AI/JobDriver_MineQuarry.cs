@@ -15,6 +15,7 @@ namespace Quarry {
         // ReSharper disable once InconsistentNaming
         private const float MinMiningSpeedFactorForNPCs = 0.5f;
         private const int BaseTicksBetweenPickHits = 120;
+        private const float MiningExperiencePoints = 0.07f;
 
         private const TargetIndex CellInd = TargetIndex.A;
         private const TargetIndex HaulableInd = TargetIndex.B;
@@ -24,16 +25,14 @@ namespace Quarry {
         private Effecter _effecter;
         private Building_Quarry _quarryBuilding;
 
-        private Building_Quarry Quarry {
-            get {
-                if (_quarryBuilding == null) {
-                    _quarryBuilding = job
-                        .GetTarget(CellInd).Cell.GetThingList(Map)
-                        .Find(q => q is Building_Quarry) as Building_Quarry;
-                }
+        private Building_Quarry Quarry => _quarryBuilding ?? (_quarryBuilding = GetQuarryBuildingFromJob());
 
-                return _quarryBuilding;
-            }
+        private Building_Quarry GetQuarryBuildingFromJob() {
+            return job
+                .GetTarget(CellInd).Cell
+                .GetThingList(Map)
+                .Find(thing => thing is Building_Quarry)
+                as Building_Quarry;
         }
 
         public override bool TryMakePreToilReservations(bool errorOnFailed) {
@@ -89,8 +88,7 @@ namespace Quarry {
             if (_ticksToPickHit > 0)
                 return;
 
-            // TODO: remove magic number
-            pawn.skills?.Learn(SkillDefOf.Mining, xp: 0.11f, direct: false);
+            pawn.skills?.Learn(SkillDefOf.Mining, xp: MiningExperiencePoints);
 
             if (_effecter == null) {
                 _effecter = EffecterDefOf.Mine.Spawn();
@@ -110,7 +108,7 @@ namespace Quarry {
                 defaultDuration = (int) Mathf.Clamp(3000 / miningSpeed, 500, 10000),
                 defaultCompleteMode = ToilCompleteMode.Delay,
                 handlingFacing = true
-            }.WithProgressBarToilDelay(HaulableInd, false, -0.5f);
+            }.WithProgressBarToilDelay(HaulableInd);
         }
 
         private void CollectAction() {
@@ -243,10 +241,10 @@ namespace Quarry {
                     StoragePriority resourceStoragePriority = StoreUtility.CurrentStoragePriorityOf(givenResource);
 
                     bool storageFound = StoreUtility.TryFindBestBetterStorageFor(givenResource, pawn, Map,
-                        resourceStoragePriority, pawn.Faction, out cell, out IHaulDestination haulDestination, true);
+                        resourceStoragePriority, pawn.Faction, out cell, out IHaulDestination haulDestination);
 
                     if (!storageFound) {
-                        JobFailReason.Is("NoEmptyPlaceLower".Translate(), null);
+                        JobFailReason.Is("NoEmptyPlaceLower".Translate());
                     }
 
                     else if (haulDestination is ISlotGroupParent) {
@@ -276,7 +274,7 @@ namespace Quarry {
 
         public override void ExposeData() {
             base.ExposeData();
-            Scribe_Values.Look<int>(ref _ticksToPickHit, "ticksToPickHit", 0, false);
+            Scribe_Values.Look(ref _ticksToPickHit, "ticksToPickHit");
         }
 
     }
