@@ -10,14 +10,12 @@ namespace Quarry {
     // ReSharper disable once UnusedMember.Global
     public sealed partial class QuarryMod {
 
-        // TODO: Is .Rounded() really needed here?
-
         private static void DrawBuildingHealthControls(Listing listing) {
 
             Rect row = listing.GetRect(Text.LineHeight);
 
-            Rect labelRectangle = row.LeftHalf().Rounded();
-            Rect controlRectangle = row.RightHalf().Rounded();
+            Rect labelRectangle = row.LeftHalf();
+            Rect controlRectangle = row.RightHalf();
 
             float width = controlRectangle.width;
             float buttonWidth = controlRectangle.height;
@@ -61,8 +59,8 @@ namespace Quarry {
 
             Rect row = listing.GetRect(Text.LineHeight);
 
-            Rect labelRectangle = row.LeftHalf().Rounded();
-            Rect sliderRectangle = row.RightHalf().Rounded();
+            Rect labelRectangle = row.LeftHalf();
+            Rect sliderRectangle = row.RightHalf();
 
             Widgets.Label(labelRectangle, "QRY_SettingsJunkChance".Translate(junkChance));
 
@@ -81,8 +79,8 @@ namespace Quarry {
 
             Rect row = listing.GetRect(Text.LineHeight);
 
-            Rect labelRectangle = row.LeftHalf().Rounded();
-            Rect sliderRectangle = row.RightHalf().Rounded();
+            Rect labelRectangle = row.LeftHalf();
+            Rect sliderRectangle = row.RightHalf();
 
             Widgets.Label(labelRectangle, "QRY_SettingsChunkChance".Translate(chunkChance));
             chunkChance = Widgets.HorizontalSlider(
@@ -100,7 +98,7 @@ namespace Quarry {
 
             Rect row = listing.GetRect(Text.LineHeight);
 
-            Rect letterRectangle = row.LeftHalf().Rounded();
+            Rect letterRectangle = row.LeftHalf();
 
             Widgets.CheckboxLabeled(letterRectangle, Static.LetterSent, ref letterSent);
 
@@ -118,7 +116,7 @@ namespace Quarry {
 
             Rect row = listing.GetRect(Text.LineHeight);
 
-            Rect labelRectangle = row.Rounded();
+            Rect labelRectangle = row;
 
             Widgets.Label(labelRectangle, Static.LabelDictionary);
 
@@ -194,11 +192,9 @@ namespace Quarry {
             const float inputWidth = 60f;
 
 
-            Rect listRectangle = listing.GetRect(height).Rounded();
+            Rect listRectangle = listing.GetRect(height);
 
-            Rect cRect = listRectangle.ContractedBy(10f);
-            Rect position = new Rect(cRect.x, cRect.y, cRect.width, cRect.height);
-
+            Rect position = listRectangle.ContractedBy(10f);
             Rect outRectangle = new Rect(0f, 0f, position.width, position.height);
             Rect viewRectangle = new Rect(0f, 0f, position.width - 16f, oreDictionary.Count * rowHeight);
 
