@@ -1,0 +1,219 @@
+[*]
+indent_style = space
+indent_size = 4
+tab_width = 4
+insert_final_newline = true
+charset = utf-8
+max_line_length = 120
+end_of_line = crlf
+trim_trailing_whitespace = true
+
+[*.sln]
+indent_style = tab
+
+[*.csproj]
+indent_size = 2
+max_line_length = off
+
+[*.cs]
+#############################
+# .NET Formatting Conventions
+# https://docs.microsoft.com/en-us/visualstudio/ide/editorconfig-code-style-settings-reference#formatting-conventions
+#############################
+
+# Organize usings
+# https://docs.microsoft.com/en-us/visualstudio/ide/editorconfig-code-style-settings-reference#usings
+resharper_dotnet_sort_system_directives_first = true
+
+# C# formatting settings
+# https://docs.microsoft.com/en-us/visualstudio/ide/editorconfig-code-style-settings-reference#c-formatting-settings
+csharp_new_line_before_open_brace = none
+csharp_new_line_before_else = true
+csharp_new_line_before_catch = true
+csharp_new_line_before_finally = true
+csharp_new_line_before_members_in_object_initializers = true
+
+# Indentation options
+# https://docs.microsoft.com/en-us/visualstudio/ide/editorconfig-code-style-settings-reference#indent
+csharp_indent_switch_labels = true
+
+# Spacing options
+# https://docs.microsoft.com/en-us/visualstudio/ide/editorconfig-code-style-settings-reference#spacing
+csharp_space_after_cast = true
+csharp_space_after_keywords_in_control_flow_statements = true
+csharp_space_between_method_declaration_parameter_list_parentheses = false
+csharp_space_between_method_call_parameter_list_parentheses = false
+#csharp_space_between_parentheses =
+
+# Wrapping options
+# https://docs.microsoft.com/en-us/visualstudio/ide/editorconfig-code-style-settings-reference#wrapping
+csharp_preserve_single_line_blocks = true
+
+## Language conventions
+# https://docs.microsoft.com/en-us/visualstudio/ide/editorconfig-code-style-settings-reference#language-code-styles
+
+# "this." and "Me." qualifiers
+# https://docs.microsoft.com/en-us/visualstudio/ide/editorconfig-code-style-settings-reference#this_and_me
+dotnet_style_qualification_for_field = false:suggestion
+dotnet_style_qualification_for_property = false:suggestion
+dotnet_style_qualification_for_method = false:suggestion
+dotnet_style_qualification_for_event = false:suggestion
+
+# Language keywords instead of framework type names for type references
+# https://docs.microsoft.com/en-us/visualstudio/ide/editorconfig-code-style-settings-reference#language_keywords
+dotnet_style_predefined_type_for_locals_parameters_members = true:warning
+dotnet_style_predefined_type_for_member_access = true:warning
+
+# Modifier preferences
+# https://docs.microsoft.com/en-us/visualstudio/ide/editorconfig-code-style-settings-reference#normalize_modifiers
+dotnet_style_require_accessibility_modifiers = always:warning
+csharp_preferred_modifier_order = public, private, protected, internal, static, extern, new, virtual, abstract, sealed, override, readonly, unsafe, volatile, async
+
+# Implicit and explicit types
+# https://docs.microsoft.com/en-us/visualstudio/ide/editorconfig-code-style-settings-reference#implicit-and-explicit-types
+csharp_style_var_for_built_in_types = true:warning
+csharp_style_var_when_type_is_apparent = true:warning
+csharp_style_var_elsewhere = true:warning
+
+# Expression-bodied members
+# https://docs.microsoft.com/en-us/visualstudio/ide/editorconfig-code-style-settings-reference#expression_bodied_members
+csharp_style_expression_bodied_constructors = true:warning
+csharp_style_expression_bodied_methods = true:warning
+csharp_style_expression_bodied_properties = true:warning
+csharp_style_expression_bodied_accessors = true:warning
+
+# Code block preferences
+# https://docs.microsoft.com/en-us/visualstudio/ide/editorconfig-code-style-settings-reference#code_block
+csharp_prefer_braces = true:warning
+
+
+###############################################
+#                                             #
+# C# Formatting Rules only when use ReSharper #
+#                                             #
+###############################################
+
+###############################################
+# Blank Lines                                 #
+###############################################
+
+######## General Section ######################
+
+resharper_csharp_blank_lines_around_region = 1
+resharper_csharp_blank_lines_inside_region = 1
+resharper_csharp_blank_lines_before_single_line_comment = 1
+
+######## In Declarations Section ######################
+
+resharper_csharp_keep_blank_lines_in_declarations = 1
+resharper_csharp_remove_blank_lines_near_braces_in_declarations = true
+resharper_csharp_blank_lines_after_start_comment = 0
+
+resharper_csharp_blank_lines_between_using_groups = 0
+resharper_csharp_blank_lines_after_using_list = 1
+
+resharper_csharp_blank_lines_around_namespace = 1
+resharper_csharp_blank_lines_inside_namespace = 0
+
+resharper_csharp_blank_lines_around_type = 1
+resharper_csharp_blank_lines_inside_type = 0
+
+resharper_csharp_blank_lines_around_field = 1
+resharper_csharp_blank_lines_around_single_line_field = 0
+
+resharper_csharp_blank_lines_around_property = 1
+resharper_csharp_blank_lines_around_single_line_property = 0
+
+resharper_csharp_blank_lines_around_auto_property = 1
+resharper_csharp_blank_lines_around_single_line_auto_property = 0
+
+resharper_csharp_blank_lines_around_invocable = 1
+resharper_csharp_blank_lines_around_single_line_invocable = 0
+
+###############################################
+# Braces Layout                               #
+###############################################
+
+resharper_csharp_keep_blank_lines_in_code = 1
+resharper_csharp_remove_blank_lines_near_braces_in_code = true
+resharper_csharp_blank_lines_around_local_method = 1
+
+resharper_csharp_blank_lines_around_single_line_local_method = 1
+
+resharper_csharp_blank_lines_before_control_transfer_statements = 0
+resharper_csharp_blank_lines_after_control_transfer_statements = 1
+
+resharper_csharp_blank_lines_before_block_statements = 0
+resharper_csharp_blank_lines_after_block_statements = 1
+
+resharper_csharp_blank_lines_before_multiline_statements = 0
+resharper_csharp_blank_lines_after_multiline_statements = 1
+
+###############################################
+# Tabs, Indents, Alignment                    #
+###############################################
+
+# Align Multiline Constructs
+resharper_csharp_alignment_tab_fill_style = use_spaces
+resharper_csharp_align_multiline_parameter = true
+resharper_csharp_align_multiline_extends_list = true
+resharper_csharp_align_linq_query = true
+resharper_csharp_align_multiline_binary_expressions_chain = true
+resharper_csharp_outdent_binary_ops = false
+# resharper_csharp_align_multiline_calls_chain = true
+resharper_csharp_outdent_dots = false
+resharper_csharp_align_multiline_array_and_object_initializer = false
+resharper_csharp_indent_anonymous_method_block = false
+resharper_csharp_align_first_arg_by_paren = false
+resharper_csharp_align_multiline_argument = true
+# resharper_csharp_align_multiline_expression = true
+resharper_csharp_align_multiline_for_stmt = true
+resharper_csharp_align_multiple_declaration = true
+resharper_csharp_align_multline_type_parameter_list = true
+resharper_csharp_align_multline_type_parameter_constrains = true
+resharper_csharp_outdent_commas = false
+
+# Align Similar Code in Columns
+resharper_csharp_int_align_fields = false
+resharper_csharp_int_align_properties = false
+resharper_csharp_int_align_methods = false
+resharper_csharp_int_align_parameters = false
+resharper_csharp_int_align_variables = false
+resharper_csharp_int_align_assignments = false
+resharper_csharp_int_align_nested_ternary = false
+resharper_csharp_int_align_invocations = false
+resharper_csharp_int_align_binary_expressions = false
+resharper_csharp_int_align_comments = false
+resharper_csharp_int_align_switch_sections = false
+
+###############################################
+# Line Breaks                                 #
+###############################################
+
+# Arrangement of Method Signatures
+resharper_csharp_wrap_parameters_style = chop_if_long
+resharper_csharp_wrap_before_declaration_lpar = false
+resharper_csharp_wrap_after_declaration_lpar = false
+resharper_csharp_place_constructor_initializer_on_same_line = true
+
+# Arrangement of Type Parameters, Constraints and Base Types
+resharper_csharp_place_type_constraints_on_same_line = true
+resharper_csharp_wrap_before_first_type_parameter_constraint = false
+resharper_csharp_wrap_multiple_type_parameter_constraints_style = chop_if_long
+resharper_csharp_wrap_before_type_parameter_langle = false
+resharper_csharp_wrap_before_extends_colon = false
+resharper_csharp_wrap_extends_list_style = chop_if_long
+
+###############################################
+# Braces Layout                               #
+###############################################
+
+resharper_csharp_empty_block_style = together_same_line
+
+###############################################
+# Spaces                                      #
+###############################################
+
+######## Within Section #######################
+
+resharper_csharp_space_within_single_line_array_initializer_braces = true
