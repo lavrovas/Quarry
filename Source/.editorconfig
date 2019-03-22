@@ -16,204 +16,366 @@ indent_size = 2
 max_line_length = off
 
 [*.cs]
-#############################
-# .NET Formatting Conventions
-# https://docs.microsoft.com/en-us/visualstudio/ide/editorconfig-code-style-settings-reference#formatting-conventions
-#############################
+# C# - Braces Layout
+# https://www.jetbrains.com/help/rider/EditorConfig_CSHARP_BracesPageSchema.html
 
-# Organize usings
-# https://docs.microsoft.com/en-us/visualstudio/ide/editorconfig-code-style-settings-reference#usings
-resharper_dotnet_sort_system_directives_first = true
+# Braces Layout
+resharper_csharp_brace_style = end_of_line
+# That sets following properties:
 
-# C# formatting settings
-# https://docs.microsoft.com/en-us/visualstudio/ide/editorconfig-code-style-settings-reference#c-formatting-settings
-csharp_new_line_before_open_brace = none
-csharp_new_line_before_else = true
-csharp_new_line_before_catch = true
-csharp_new_line_before_finally = true
-csharp_new_line_before_members_in_object_initializers = true
+# Type and namespace declaration
+# resharper_csharp_type_declaration_braces = end_of_line
 
-# Indentation options
-# https://docs.microsoft.com/en-us/visualstudio/ide/editorconfig-code-style-settings-reference#indent
+# Indent inside namespace declaration
+resharper_csharp_indent_inside_namespace = false
+
+# Method declaration
+# resharper_csharp_invocable_declaration_braces = end_of_line
+
+# Lambda and delegate (anonymous method declaration)
+# resharper_csharp_anonymous_method_declaration_braces = end_of_line
+
+# Property declaration
+# resharper_csharp_accessor_owner_declaration_braces = end_of_line
+
+# Accessor declaration
+# resharper_csharp_accessor_declaration_braces = end_of_line
+
+# Block under "case" label
+# resharper_csharp_case_block_braces = end_of_line
+
+# Array and object initializer
+# resharper_csharp_initializer_braces = end_of_line
+
+# Use continuous line indent inside initializer braces
+# TODO: does it work?
+resharper_csharp_use_continuous_indent_inside_initializer_braces = true
+
+# Other
+# resharper_csharp_other_braces = end_of_line
+
+# Allow comment after '{'
+resharper_csharp_allow_comment_after_lbrace = true
+
+# Empty braces formatting
+resharper_csharp_empty_block_style = multiline
+
+
+# C# - Tabs, Indents, Alignment
+# https://www.jetbrains.com/help/rider/EditorConfig_CSHARP_CSharpIndentStylePageSchema.html
+
+# General
+# Indent style
+csharp_indent_style = spaces
+
+# Indent size
+csharp_indent_size = 4
+
+# Tab width
+csharp_tab_width = 4
+
+# Continuous line indent multiplier
+# TODO: does it work?
+resharper_csharp_continuous_indent_multiplier = 1
+
+
+# Nested Statements
+# Indent nested "using" statements
+resharper_csharp_indent_nested_usings_stmt = false
+
+# Indent nested "fixed" statements
+resharper_csharp_indent_nested_fixed_stmt = false
+
+# Indent nested "lock" statements
+resharper_csharp_indent_nested_lock_stmt = false
+
+# Indent nested "for" statements
+resharper_csharp_indent_nested_for_stmt = false
+
+# Indent nested "foreach" statements
+resharper_csharp_indent_nested_foreach_stmt = false
+
+# Indent nested "while" statements
+resharper_csharp_indent_nested_while_stmt = false
+
+
+# Parenthesis
+# Use continuous line indent inside parenthesis
+# TODO: does it work?
+resharper_csharp_use_continuous_indent_inside_parens = true
+
+# Indent method declarations' parenthesis
+resharper_csharp_indent_method_decl_pars = inside
+
+# Indent method calls' parenthesis
+resharper_csharp_indent_invocation_pars = inside
+
+# Indent statement (if, while, for, etc) parenthesis
+resharper_csharp_indent_statement_pars = inside
+
+# Indent type parameter's angles
+resharper_csharp_indent_typeparam_angles = inside
+
+# Indent type argument's angles
+resharper_csharp_indent_typearg_angles = inside
+
+# Indent other parenthesis and brackets
+resharper_csharp_indent_pars = inside
+
+
+# Preprocessor Directives
+# Indent #if, #else, #elif, #endif
+resharper_csharp_indent_preprocessor_if = no_indent
+
+# Indent #region, #endregion
+resharper_csharp_indent_preprocessor_region = usual_indent
+
+# Indent other preprocessor directives
+resharper_csharp_indent_preprocessor_other = no_indent
+
+
+# Other Indents
+# Indent "case" from "switch"
 csharp_indent_switch_labels = true
 
-# Spacing options
-# https://docs.microsoft.com/en-us/visualstudio/ide/editorconfig-code-style-settings-reference#spacing
-csharp_space_after_cast = true
-csharp_space_after_keywords_in_control_flow_statements = true
-csharp_space_between_method_declaration_parameter_list_parentheses = false
-csharp_space_between_method_call_parameter_list_parentheses = false
-#csharp_space_between_parentheses =
+# Indent type constraints
+resharper_csharp_indent_type_constraints = true
 
-# Wrapping options
-# https://docs.microsoft.com/en-us/visualstudio/ide/editorconfig-code-style-settings-reference#wrapping
-csharp_preserve_single_line_blocks = true
+# Don't indent comments started at first column
+resharper_csharp_stick_comment = false
 
-## Language conventions
-# https://docs.microsoft.com/en-us/visualstudio/ide/editorconfig-code-style-settings-reference#language-code-styles
-
-# "this." and "Me." qualifiers
-# https://docs.microsoft.com/en-us/visualstudio/ide/editorconfig-code-style-settings-reference#this_and_me
-dotnet_style_qualification_for_field = false:suggestion
-dotnet_style_qualification_for_property = false:suggestion
-dotnet_style_qualification_for_method = false:suggestion
-dotnet_style_qualification_for_event = false:suggestion
-
-# Language keywords instead of framework type names for type references
-# https://docs.microsoft.com/en-us/visualstudio/ide/editorconfig-code-style-settings-reference#language_keywords
-dotnet_style_predefined_type_for_locals_parameters_members = true:warning
-dotnet_style_predefined_type_for_member_access = true:warning
-
-# Modifier preferences
-# https://docs.microsoft.com/en-us/visualstudio/ide/editorconfig-code-style-settings-reference#normalize_modifiers
-dotnet_style_require_accessibility_modifiers = always:warning
-csharp_preferred_modifier_order = public, private, protected, internal, static, extern, new, virtual, abstract, sealed, override, readonly, unsafe, volatile, async
-
-# Implicit and explicit types
-# https://docs.microsoft.com/en-us/visualstudio/ide/editorconfig-code-style-settings-reference#implicit-and-explicit-types
-csharp_style_var_for_built_in_types = true:warning
-csharp_style_var_when_type_is_apparent = true:warning
-csharp_style_var_elsewhere = true:warning
-
-# Expression-bodied members
-# https://docs.microsoft.com/en-us/visualstudio/ide/editorconfig-code-style-settings-reference#expression_bodied_members
-csharp_style_expression_bodied_constructors = true:warning
-csharp_style_expression_bodied_methods = true:warning
-csharp_style_expression_bodied_properties = true:warning
-csharp_style_expression_bodied_accessors = true:warning
-
-# Code block preferences
-# https://docs.microsoft.com/en-us/visualstudio/ide/editorconfig-code-style-settings-reference#code_block
-csharp_prefer_braces = true:warning
-
-
-###############################################
-#                                             #
-# C# Formatting Rules only when use ReSharper #
-#                                             #
-###############################################
-
-###############################################
-# Blank Lines                                 #
-###############################################
-
-######## General Section ######################
-
-resharper_csharp_blank_lines_around_region = 1
-resharper_csharp_blank_lines_inside_region = 1
-resharper_csharp_blank_lines_before_single_line_comment = 1
-
-######## In Declarations Section ######################
-
-resharper_csharp_keep_blank_lines_in_declarations = 1
-resharper_csharp_remove_blank_lines_near_braces_in_declarations = true
-resharper_csharp_blank_lines_after_start_comment = 0
-
-resharper_csharp_blank_lines_between_using_groups = 0
-resharper_csharp_blank_lines_after_using_list = 1
-
-resharper_csharp_blank_lines_around_namespace = 1
-resharper_csharp_blank_lines_inside_namespace = 0
-
-resharper_csharp_blank_lines_around_type = 1
-resharper_csharp_blank_lines_inside_type = 0
-
-resharper_csharp_blank_lines_around_field = 1
-resharper_csharp_blank_lines_around_single_line_field = 0
-
-resharper_csharp_blank_lines_around_property = 1
-resharper_csharp_blank_lines_around_single_line_property = 0
-
-resharper_csharp_blank_lines_around_auto_property = 1
-resharper_csharp_blank_lines_around_single_line_auto_property = 0
-
-resharper_csharp_blank_lines_around_invocable = 1
-resharper_csharp_blank_lines_around_single_line_invocable = 0
-
-###############################################
-# Braces Layout                               #
-###############################################
-
-resharper_csharp_keep_blank_lines_in_code = 1
-resharper_csharp_remove_blank_lines_near_braces_in_code = true
-resharper_csharp_blank_lines_around_local_method = 1
-
-resharper_csharp_blank_lines_around_single_line_local_method = 1
-
-resharper_csharp_blank_lines_before_control_transfer_statements = 0
-resharper_csharp_blank_lines_after_control_transfer_statements = 1
-
-resharper_csharp_blank_lines_before_block_statements = 0
-resharper_csharp_blank_lines_after_block_statements = 1
-
-resharper_csharp_blank_lines_before_multiline_statements = 0
-resharper_csharp_blank_lines_after_multiline_statements = 1
-
-###############################################
-# Tabs, Indents, Alignment                    #
-###############################################
 
 # Align Multiline Constructs
-resharper_csharp_alignment_tab_fill_style = use_spaces
+# How to align when tabs are used for indents
+resharper_csharp_alignment_tab_fill_style = spaces
+
+# Method parameters
 resharper_csharp_align_multiline_parameter = true
+
+# List of base classes and interfaces
 resharper_csharp_align_multiline_extends_list = true
+
+# LINQ query
 resharper_csharp_align_linq_query = true
+
+# Chained binary expressions
 resharper_csharp_align_multiline_binary_expressions_chain = true
-resharper_csharp_outdent_binary_ops = false
-# resharper_csharp_align_multiline_calls_chain = true
-resharper_csharp_outdent_dots = false
+
+# Outdent binary operators
+resharper_csharp_outdent_binary_ops = true
+
+# Chained method calls
+resharper_csharp_align_multiline_calls_chain = true
+
+# Outdent dots in chained method calls
+resharper_csharp_outdent_dots = true
+
+# Array, object and collection initializer
 resharper_csharp_align_multiline_array_and_object_initializer = false
+
+# Anonymous method body
 resharper_csharp_indent_anonymous_method_block = false
+
+# First call arguments by '('
 resharper_csharp_align_first_arg_by_paren = false
+
+# Call arguments
 resharper_csharp_align_multiline_argument = true
-# resharper_csharp_align_multiline_expression = true
+
+# Tuple components
+resharper_csharp_align_tuple_components = true
+
+# Other expressions
+resharper_csharp_align_multiline_expression = true
+
+# "for" statement header
 resharper_csharp_align_multiline_for_stmt = true
+
+# Multiple declarations
 resharper_csharp_align_multiple_declaration = true
+
+# Type parameters list
 resharper_csharp_align_multline_type_parameter_list = true
+
+# Type parameter constraints
 resharper_csharp_align_multline_type_parameter_constrains = true
-resharper_csharp_outdent_commas = false
+
+# Outdent commas
+resharper_csharp_outdent_commas = true
+
 
 # Align Similar Code in Columns
-resharper_csharp_int_align_fields = false
-resharper_csharp_int_align_properties = false
-resharper_csharp_int_align_methods = false
-resharper_csharp_int_align_parameters = false
-resharper_csharp_int_align_variables = false
-resharper_csharp_int_align_assignments = false
-resharper_csharp_int_align_nested_ternary = false
-resharper_csharp_int_align_invocations = false
-resharper_csharp_int_align_binary_expressions = false
-resharper_csharp_int_align_comments = false
+
+resharper_csharp_int_align = false
+# That sets following properties:
+
+# Fields and constants
+# resharper_csharp_int_align_fields = false
+
+# Properties and events
+# resharper_csharp_int_align_properties = false
+
+# Simple methods, operators, delegates
+# resharper_csharp_int_align_methods = false
+
+# Multiline method signature
+# resharper_csharp_int_align_parameters = false
+
+# Variables and local constants
+# resharper_csharp_int_align_variables = false
+
+# Other assignments and initializers
+# resharper_csharp_int_align_assignments = false
+
+# Nested ternary operators
+# resharper_csharp_int_align_nested_ternary = false
+
+# Invocations of the same method
+# resharper_csharp_int_align_invocations = false
+
+# Binary expressions
+# resharper_csharp_int_align_binary_expressions = false
+
+# End comments
+resharper_csharp_int_align_comments = true
+
+# Simple switch sections
 resharper_csharp_int_align_switch_sections = false
 
-###############################################
-# Line Breaks                                 #
-###############################################
 
-# Arrangement of Method Signatures
-resharper_csharp_wrap_parameters_style = chop_if_long
-resharper_csharp_wrap_before_declaration_lpar = false
-resharper_csharp_wrap_after_declaration_lpar = false
-resharper_csharp_place_constructor_initializer_on_same_line = true
+# C# - Blank Lines
+# https://www.jetbrains.com/help/rider/EditorConfig_CSHARP_BlankLinesPageScheme.html
 
-# Arrangement of Type Parameters, Constraints and Base Types
-resharper_csharp_place_type_constraints_on_same_line = true
-resharper_csharp_wrap_before_first_type_parameter_constraint = false
-resharper_csharp_wrap_multiple_type_parameter_constraints_style = chop_if_long
-resharper_csharp_wrap_before_type_parameter_langle = false
-resharper_csharp_wrap_before_extends_colon = false
-resharper_csharp_wrap_extends_list_style = chop_if_long
+# General
 
-###############################################
-# Braces Layout                               #
-###############################################
+# Around region
+resharper_csharp_blank_lines_around_region = 1
 
-resharper_csharp_empty_block_style = together_same_line
+# Inside region
+resharper_csharp_blank_lines_inside_region = 1
 
-###############################################
-# Spaces                                      #
-###############################################
+# Before single-line comment
+resharper_csharp_blank_lines_before_single_line_comment = 1
 
-######## Within Section #######################
 
-resharper_csharp_space_within_single_line_array_initializer_braces = true
+# Blank Lines in Declarations
+
+# Keep max blank lines in declarations
+resharper_csharp_keep_blank_lines_in_declarations = 1
+
+# Remove blank lines after "{" and before "}" in declarations
+resharper_csharp_remove_blank_lines_near_braces_in_declarations = true
+
+# After file header comment
+resharper_csharp_blank_lines_after_start_comment = 2
+
+# Between different "using" groups
+resharper_csharp_blank_lines_between_using_groups = 1
+
+# After "using" list
+resharper_csharp_blank_lines_after_using_list = 2
+
+# Around namespace
+resharper_csharp_blank_lines_around_namespace = 2
+
+# Inside namespace
+resharper_csharp_blank_lines_inside_namespace = 1
+
+# Around type
+resharper_csharp_blank_lines_around_type = 1
+
+# Inside type
+resharper_csharp_blank_lines_inside_type = 1
+
+# Around field
+resharper_csharp_blank_lines_around_field = 1
+
+# Around single line field
+resharper_csharp_blank_lines_around_single_line_field = 0;
+
+# Around property/event
+resharper_csharp_blank_lines_around_property = 1
+
+# Around single line property/event
+resharper_csharp_blank_lines_around_single_line_property = 0
+
+# Around auto/abstract property/event
+resharper_csharp_blank_lines_around_auto_property = 1
+
+# Around single line auto/abstract property/event
+resharper_csharp_blank_lines_around_single_line_auto_property = 0
+
+# Around method
+resharper_csharp_blank_lines_around_invocable = 1
+
+# Around single line method
+resharper_csharp_blank_lines_around_single_line_invocable = 1
+
+
+# Blank Lines in Code
+
+# Keep max blank lines in code
+resharper_csharp_keep_blank_lines_in_code = 1
+
+# Remove blank lines after "{" and before "}" in code
+resharper_csharp_remove_blank_lines_near_braces_in_code = true
+
+# Around local function
+resharper_csharp_blank_lines_around_local_method = 1
+
+# Around single line local function
+resharper_csharp_blank_lines_around_single_line_local_method = 0
+
+# Before statements with control transfer
+resharper_csharp_blank_lines_before_control_transfer_statements = 0
+
+# After statements with control transfer
+resharper_csharp_blank_lines_after_control_transfer_statements = 1
+
+# Before statements with child blocks
+resharper_csharp_blank_lines_before_block_statements = 0
+
+# After statements with child blocks
+resharper_csharp_blank_lines_after_block_statements = 1
+
+# Before multiline statements
+resharper_csharp_blank_lines_before_multiline_statements = 0
+
+# After multiline statements
+resharper_csharp_blank_lines_after_multiline_statements = 1
+
+
+
+# C# - CodeStyle
+# https://www.jetbrains.com/help/rider/EditorConfig_CSHARP_CSharpCodeStylePageImplSchema.html
+
+# 'var' Usage in Declarations
+
+# For built-in types
+resharper_csharp_for_built_in_types = use_explicit_type
+
+# For simple types
+resharper_csharp_for_simple_types = use_explicit_type
+
+# Elsewhere
+resharper_csharp_for_other_types = can_use_either
+
+
+# Prefer separate declarations for deconstructed variables
+resharper_csharp_prefer_separate_deconstructed_variables_declaration = true
+
+# Use 'var' keyword for discards
+resharper_csharp_prefer_explicit_discard_declaration = false
+
+
+# Instance Members Qualification
+
+# Use "this." qualifier for
+resharper_csharp_instance_members_qualify_members = none
+
+# Qualify members declared in
+resharper_csharp_instance_members_qualify_declared_in = this_class, base_class
+
+
+# Static Members Qualification
+
