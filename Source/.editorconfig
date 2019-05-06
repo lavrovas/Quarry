@@ -379,3 +379,265 @@ resharper_csharp_instance_members_qualify_declared_in = this_class, base_class
 
 # Static Members Qualification
 
+# Qualify with the name of
+resharper_csharp_static_members_qualify_with = declared_type
+
+# Members to qualify
+resharper_csharp_static_members_qualify_members = none
+
+
+# Built-in Types
+
+# In locals, members and parameters, prefer
+resharper_csharp_builtin_type_reference_style = use_keyword
+
+# In member access expressions, prefer
+resharper_csharp_builtin_type_reference_for_member_access_style = use_keyword
+
+
+# Reference Qualification
+
+# Prefer fully qualified references
+resharper_csharp_prefer_qualified_reference = false
+
+# Add 'using' directive to deepest scope
+resharper_csharp_add_imports_to_deepest_scope = false
+
+# Prefer fully qualified using name at nested scope
+resharper_csharp_qualified_using_at_nested_scope = false
+
+# Use using alias directive to resolve conflicts
+resharper_csharp_allow_alias = true
+
+# Allow 'global::' prefix use
+resharper_csharp_can_use_global_alias = true
+
+
+# Modifiers
+
+# Prefer explicit/implicit private modifier for type members
+resharper_csharp_default_private_modifier = explicit
+
+# Prefer explicit/implicit internal modifier for types
+resharper_csharp_default_internal_modifier = explicit
+
+# Modifiers order
+resharper_csharp_modifiers_order = public, private, protected, internal, new, abstract, virtual, sealed, override, static, readonly, extern, unsafe, volatile, async
+
+
+# Arguments
+
+# Skip single arguments
+resharper_csharp_arguments_skip_single = false
+
+# Literal values
+resharper_csharp_arguments_literal = positional
+
+# String literal values
+resharper_csharp_arguments_string_literal = positional
+
+# Named expressions (variables, properties, methods, etc.)
+resharper_csharp_arguments_named = positional
+
+# Anonymous methods (delegates and lambdas)
+resharper_csharp_arguments_anonymous_function = positional
+
+# Other
+resharper_csharp_arguments_other = positional
+
+
+# Parentheses
+
+# Remove redundant parentheses
+resharper_csharp_parentheses_redundancy_style = remove_if_not_clarifies_precedence
+
+# Add parentheses to avoid non-obvious precedence. Select which operations has non-obvious precedence
+resharper_csharp_parentheses_non_obvious_operations = shift, bitwise
+
+
+# Braces
+
+# In "if" statement
+resharper_csharp_braces_for_ifelse = not_required_for_both
+
+# In "for" statement
+resharper_csharp_braces_for_for = not_required
+
+# In "foreach" statement
+resharper_csharp_braces_for_foreach = not_required
+
+# In "while" statement
+resharper_csharp_braces_for_while = not_required
+
+# In "do-while" statement
+resharper_csharp_braces_for_dowhile = required
+
+# In "using" statement
+resharper_csharp_braces_for_using = required
+
+# In "lock" statement
+resharper_csharp_braces_for_lock = required
+
+# In "fixed" statement
+resharper_csharp_braces_for_fixed = required
+
+# Remove redundant
+resharper_csharp_braces_redundant = true
+
+
+# Code Body
+
+# Methods and operators
+resharper_csharp_method_or_operator_body = block_body
+
+# Local functions
+resharper_csharp_local_function_body = block_body
+
+# Constructors and destructors
+resharper_csharp_constructor_or_destructor_body = block_body
+
+# Properties, indexers and events
+resharper_csharp_accessor_owner_body = expression_body
+
+# Apply style heuristics
+resharper_csharp_use_heuristics_for_body_style = true
+
+
+# Attributes
+
+# Join or separate attributes in section
+resharper_csharp_force_attribute_style = separate
+
+
+
+# C# - Line Breaks
+# https://www.jetbrains.com/help/rider/EditorConfig_CSHARP_LineBreaksPageSchema.html#Arrangement_of_Statements
+
+
+# General
+
+# Keep existing line breaks
+resharper_csharp_keep_user_linebreaks = true
+
+# Hard wrap at
+# -- overrides max_line_length --
+# csharp_max_line_length = 120
+
+# Prefer wrap before ","
+resharper_csharp_wrap_before_comma = false
+
+# Special "else if" treatment
+resharper_csharp_special_else_if_treatment = true
+
+# Line feed at end of file
+# -- overrides insert_final_newline --
+# csharp_insert_final_newline = true
+
+
+# Arrangement of Attributes
+
+# Place attribute section list on separate line if it is longer than
+resharper_csharp_max_attribute_length_for_same_line = 38
+
+# Keep existing arrangement of attributes
+resharper_csharp_keep_existing_attribute_arrangement = false
+
+# Place attribute on same line
+# -- overrides following --
+resharper_csharp_place_attribute_on_same_line = never
+
+# Place type attribute on same line
+# resharper_csharp_place_type_attribute_on_same_line = never
+
+# Place method attribute on same line
+# resharper_csharp_place_method_attribute_on_same_line = never
+
+# Place property/indexer/event attribute on same line
+# resharper_csharp_place_accessorholder_attribute_on_same_line = never
+
+# Place accessor attribute on same line
+# resharper_csharp_place_accessor_attribute_on_same_line = never
+
+# Place field attribute on same line
+# resharper_csharp_place_field_attribute_on_same_line = never
+
+
+# Arrangement of Method Signatures
+
+# Wrap formal parameters
+resharper_csharp_wrap_parameters_style = wrap_if_long
+
+# Max formal parameters on a single line
+resharper_csharp_max_formal_parameters_on_line = 5
+
+# Keep existing arrangement of parenthesis in declaration
+resharper_csharp_keep_existing_declaration_parens_arrangement = false
+
+# Prefer wrap before "(" in declaration
+resharper_csharp_wrap_before_declaration_lpar = false
+
+# Prefer wrap after "(" in declaration
+resharper_csharp_wrap_after_declaration_lpar = true
+
+# Prefer wrap before ")" in declaration
+resharper_csharp_wrap_before_declaration_rpar = true
+
+# Allow constructor initializer on same line
+resharper_csharp_place_constructor_initializer_on_same_line = true
+
+
+# Arrangement of Expression Bodied Members
+
+# Keep existing arrangement of expression bodied members
+resharper_csharp_keep_existing_expr_member_arrangement = false
+
+# Place method expression body on same line
+resharper_csharp_place_expr_method_on_single_line = if_owner_is_single_line
+
+# Place property expression body on same line
+resharper_csharp_place_expr_property_on_single_line = if_owner_is_single_line
+
+# Place property accessor expression body on same line
+resharper_csharp_place_expr_accessor_on_single_line = if_owner_is_single_line
+
+# Prefer wrap before "=>" followed by expressions
+resharper_csharp_wrap_before_arrow_with_expressions = false
+
+
+# Arrangement of Type Parameters, Constraints and Base Types
+
+# Allow type constraints on same line
+resharper_csharp_place_type_constraints_on_same_line = true
+
+# Prefer wrap before first constraint
+resharper_csharp_wrap_before_first_type_parameter_constraint = true
+
+# Wrap multiple type parameter constraints
+resharper_csharp_wrap_multiple_type_parameter_constraints_style = wrap_if_long
+
+# Prefer wrap before type parameters opening angle
+resharper_csharp_wrap_before_type_parameter_langle = false
+
+# Prefer wrap before ":"
+resharper_csharp_wrap_before_extends_colon = false
+
+# Wrap extends/implements list
+resharper_csharp_wrap_extends_list_style = wrap_if_long
+
+
+# Arrangement of Declaration Blocks
+
+# Keep existing arrangement of declaration blocks
+resharper_csharp_keep_existing_declaration_block_arrangement = false
+
+# Place abstract/auto property/indexer/event declaration on single line
+resharper_csharp_place_abstract_accessorholder_on_single_line = true
+resharper_csharp_place_simple_blocks_on_single_line = true
+resharper_csharp_place_simple_declaration_blocks_on_single_line = true
+
+# Place simple property/indexer/event declaration on single line
+resharper_csharp_place_simple_accessorholder_on_single_line = false
+resharper_csharp_place_simple_blocks_on_single_line = false
+resharper_csharp_place_simple_declaration_blocks_on_single_line = false
+
+# 
